@@ -38,21 +38,57 @@ class RentalController {
 	}
 
 	public void rentUnit(Property property, Tenant tenant, LocalDate startDate, LocalDate endDate, double rentAmount) {
-		//TODO
+		// Check if property is available
+		boolean propertyAvailable = true;
+		for (Lease lease : leases) {
+			if (lease.getProperty() == property && !lease.isExpired()) {
+				propertyAvailable = false;
+				break;
+			}
+		}
+
+		if (propertyAvailable) {
+			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
+			leases.add(lease);
+		} else {
+			// Property is already rented
+			System.out.println("Sorry, the property is not available for rent.");
+		}
 	}
 
 	public ArrayList<Lease> getRentedUnits() {
-		//TODO
-		return null;
+		ArrayList<Lease> rentedUnits = new ArrayList<>();
+		for (Lease lease : leases) {
+			if (!lease.isExpired()) {
+				rentedUnits.add(lease);
+			}
+		}
+		return rentedUnits;
 	}
 
 	public ArrayList<Property> getVacantUnits() {
-		//TODO
-		return null;
+		ArrayList<Property> vacantUnits = new ArrayList<>();
+		for (Property property : properties) {
+			boolean propertyAvailable = true;
+			for (Lease lease : leases) {
+				if (lease.getProperty() == property && !lease.isExpired()) {
+					propertyAvailable = false;
+					break;
+				}
+			}
+			if (propertyAvailable) {
+				vacantUnits.add(property);
+			}
+		}
+		return vacantUnits;
 	}
 	
 	public Tenant getTenant(int tenantID) {
-	    //TODO
+	    for (Tenant tenant : tenants) {
+	        if (tenant.getTenantID() == tenantID) {
+	            return tenant;
+	        }
+	    }
 	    return null;
 	}
 
