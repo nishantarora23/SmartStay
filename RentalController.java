@@ -6,6 +6,7 @@ class RentalController {
 	private ArrayList<Property> properties;
 	private ArrayList<Tenant> tenants;
 	private ArrayList<Lease> leases;
+	
 	public RentalController() {
 		this.properties = new ArrayList<>();
 		this.tenants = new ArrayList<>();
@@ -56,7 +57,18 @@ class RentalController {
 	}
 
 	public void notifyInterestedTenants(){
-		//TODO
+		for(Lease lease : leases) {
+			if(lease.isExpired()) {
+				Property property = lease.getProperty();
+				ArrayList<Tenant> interestedTenants = property.getAllInterestedTenants();
+				if(!interestedTenants.isEmpty()) {
+					System.out.println("The unit at " + property.getCivicAddress()  + " is available to rent. Interested tenants: ");
+		            for (Tenant tenant : interestedTenants) {
+		                System.out.println("Tenant Information: " + tenant.toString());
+		            }
+				}
+			}
+		}
 	}
 	
 	public void displayRentPaymentSummary(){
