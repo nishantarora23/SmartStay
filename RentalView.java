@@ -1,3 +1,7 @@
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 class RentalView {
 
 
@@ -17,7 +21,8 @@ class RentalView {
 		System.out.println("7. Display vacant units");
 		System.out.println("0. Exit");
 	}
-	
+
+
 	public void run() {
 		Scanner scanner = new Scanner(System.in);
 		int choice = -1;
@@ -58,7 +63,7 @@ class RentalView {
 			}
 		}
 	}
-	
+
 	private void addProperty(Scanner scanner) {
 		System.out.println("Select property type: ");
 		System.out.println("1. Apartment");
@@ -104,7 +109,7 @@ class RentalView {
 		System.out.println("Apartment added successfully.");
 		controller.addProperty(apartment);
 	}
-	
+
 	private void addCondo(Scanner scanner) {
 
 		System.out.println("Enter the civic address:");
@@ -170,4 +175,109 @@ class RentalView {
 		controller.addProperty(house);
 	}
 
+
+	private void addTenant(Scanner scanner) {
+		System.out.print("Enter the first name: ");
+		String firstName = scanner.nextLine();
+
+		System.out.print("Enter the last name: ");
+		String lastName = scanner.nextLine();
+
+		System.out.print("Enter the phone number: ");
+		String phoneNumber = scanner.nextLine();
+
+		System.out.print("Enter the email: ");
+		String email = scanner.nextLine();
+
+		Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
+		System.out.println("Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: " + tenant.getTenantID() + 
+				". Please remember to keep this ID for any future communication with our rental system.");
+		controller.addTenant(tenant);
+	}
+
+	private void rentUnit(Scanner scanner) {
+
+		//drop down for tenant selection
+		System.out.print("Enter the tenant ID: ");
+		int tenantID = scanner.nextInt();
+		scanner.nextLine();
+
+		Tenant tenant = controller.getTenant(tenantID);
+		if (tenant == null) {
+			System.out.println("Invalid tenant ID.");
+			return;
+		}
+
+		ArrayList<Property> properties = controller.getAllProperties();
+//		if (properties.isEmpty()) {
+//			System.out.println("Sorry, there are no vacant units.");
+//			return;
+//		}
+
+		System.out.println("Select a property to rent:");
+		for (int i = 0; i < properties.size(); i++) {
+			Property property = properties.get(i);
+			System.out.println((i+1) + ". " + property.getCivicAddress());
+		}
+
+		System.out.print("Enter your choice: ");
+		int propertyChoice = scanner.nextInt();
+		scanner.nextLine();
+
+		if (propertyChoice < 1 || propertyChoice > properties.size()) {
+			System.out.println("Invalid choice.");
+			return;
+		}
+
+		Property property = properties.get(propertyChoice - 1);
+
+		ArrayList<Property> vacantProperties = controller.getVacantUnits();
+
+		
+		
+		System.out.print("Enter the lease start date (yyyy-MM-dd): ");
+		String startDateStr = scanner.nextLine();
+		LocalDate startDate = LocalDate.parse(startDateStr);
+
+		System.out.print("Enter the lease end date (yyyy-MM-dd): ");
+		String endDateStr = scanner.nextLine();
+		LocalDate endDate = LocalDate.parse(endDateStr);
+
+		System.out.print("Enter the rent amount: ");
+		double rentAmount = scanner.nextDouble();
+		scanner.nextLine();
+
+		Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
+		controller.addLease(lease);
+	}
+
+	private void displayProperties() {
+		ArrayList<Property> properties = controller.getAllProperties();
+		for (Property property : properties) {
+			System.out.println(property);
+		}
+	}
+
+	private void displayTenants() {
+		ArrayList<Tenant> tenants = controller.getAllTenants();
+		for (Tenant tenant : tenants) {
+			System.out.println(tenant);
+		}
+	}
+
+	private void displayRentedUnits() {
+		ArrayList<Lease> leases = controller.getAllLeases();
+		for (Lease lease : leases) {
+			if (lease.getEndDate().isAfter(LocalDate.now())) {
+				System.out.println(lease);
+			}
+		}
+	}
+
+	private void displayVacantUnits() {
+		ArrayList<Property> properties = controller.getVacantUnits();
+		for (Property property : properties) {
+			System.out.println(property);
+		}
+	}
 }
