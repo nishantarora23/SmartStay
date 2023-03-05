@@ -2,15 +2,28 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * The RentalView class represents the view of the SmartStay (rental management system). 
+ * It handles user input and displays information related to properties, 
+ * tenants, and rental units. It interacts with the RentalController to perform
+ * operations on the model.
+ */
 class RentalView {
-
 
 	private RentalController controller;
 
+	/**
+	 * Creates a new RentalView with the given controller.
+	 *
+	 * @param controller the controller for the view to interact with
+	 */
 	public RentalView(RentalController controller) {
 		this.controller = controller;
 	}
 
+	/**
+	 * Displays the menu options for the rental management system.
+	 */
 	public void displayMenu() {
 		System.out.println("1. Add a property");
 		System.out.println("2. Add a tenant");
@@ -22,7 +35,9 @@ class RentalView {
 		System.out.println("0. Exit");
 	}
 
-
+	/**
+	 * Runs the rental management system. Handles user input and performs operations based on the input.
+	 */
 	public void run() {
 		Scanner scanner = new Scanner(System.in);
 		int choice = -1;
@@ -64,6 +79,11 @@ class RentalView {
 		}
 	}
 
+	/**
+	 * Prompts the user to select a property type and adds the property to the model.
+	 *
+	 * @param scanner the scanner to read user input
+	 */
 	private void addProperty(Scanner scanner) {
 		System.out.println("Select property type: ");
 		System.out.println("1. Apartment");
@@ -88,6 +108,11 @@ class RentalView {
 		}
 	}
 
+	/**
+	 * Prompts the user to enter details about an apartment and adds it to the model.
+	 *
+	 * @param scanner the scanner to read user input
+	 */
 	private void addApartment(Scanner scanner) {
 		System.out.println("Enter the civic address:");
 		String civicAddress = scanner.nextLine();
@@ -110,6 +135,11 @@ class RentalView {
 		controller.addProperty(apartment);
 	}
 
+	/**
+	 * Prompts the user to input details of a new Condo and adds it to the Controller's list of properties.
+	 * 
+	 * @param scanner a Scanner object used to receive input from the user
+	 */
 	private void addCondo(Scanner scanner) {
 
 		System.out.println("Enter the civic address:");
@@ -144,7 +174,11 @@ class RentalView {
 		controller.addProperty(condo);
 	}
 
-
+	/**
+	 * Prompts the user to input details of a new House and adds it to the Controller's list of properties.
+	 * 
+	 * @param scanner a Scanner object used to receive input from the user
+	 */
 	private void addHouse(Scanner scanner) {
 
 		System.out.println("Enter the civic address: ");
@@ -175,7 +209,11 @@ class RentalView {
 		controller.addProperty(house);
 	}
 
-
+	/**
+	 * Prompts the user to input details of a new Tenant and adds it to the Controller's list of tenants.
+	 * 
+	 * @param scanner a Scanner object used to receive input from the user
+	 */
 	private void addTenant(Scanner scanner) {
 		System.out.print("Enter the first name: ");
 		String firstName = scanner.nextLine();
@@ -195,6 +233,11 @@ class RentalView {
 		controller.addTenant(tenant);
 	}
 
+	/**
+	 * Prompts the user to select a Tenant and a Property, then adds a new Lease to the Controller's list of leases.
+	 * 
+	 * @param scanner a Scanner object used to receive input from the user
+	 */
 	private void rentUnit(Scanner scanner) {
 
 		//drop down for tenant selection
@@ -209,10 +252,10 @@ class RentalView {
 		}
 
 		ArrayList<Property> properties = controller.getAllProperties();
-//		if (properties.isEmpty()) {
-//			System.out.println("Sorry, there are no vacant units.");
-//			return;
-//		}
+		//		if (properties.isEmpty()) {
+		//			System.out.println("Sorry, there are no vacant units.");
+		//			return;
+		//		}
 
 		System.out.println("Select a property to rent:");
 		for (int i = 0; i < properties.size(); i++) {
@@ -233,8 +276,8 @@ class RentalView {
 
 		ArrayList<Property> vacantProperties = controller.getVacantUnits();
 
-		
-		
+
+
 		System.out.print("Enter the lease start date (yyyy-MM-dd): ");
 		String startDateStr = scanner.nextLine();
 		LocalDate startDate = LocalDate.parse(startDateStr);
@@ -251,6 +294,10 @@ class RentalView {
 		controller.addLease(lease);
 	}
 
+	/**
+	 * Displays all properties by retrieving the list of properties
+	 * from the controller and printing them to the console.
+	 */
 	private void displayProperties() {
 		ArrayList<Property> properties = controller.getAllProperties();
 		for (Property property : properties) {
@@ -258,6 +305,10 @@ class RentalView {
 		}
 	}
 
+	/**
+	 * Displays all tenants by retrieving the list of tenants from the 
+	 * controller and printing them to the console.
+	 */
 	private void displayTenants() {
 		ArrayList<Tenant> tenants = controller.getAllTenants();
 		for (Tenant tenant : tenants) {
@@ -265,6 +316,10 @@ class RentalView {
 		}
 	}
 
+	/**
+	 * 	Displays all rented units by retrieving the list of leases from the
+	 * controller and printing them to the console if the lease is still active.
+	 */
 	private void displayRentedUnits() {
 		ArrayList<Lease> leases = controller.getAllLeases();
 		for (Lease lease : leases) {
@@ -274,6 +329,11 @@ class RentalView {
 		}
 	}
 
+	/**
+	 * 	Displays all vacant units by retrieving the list of properties
+	 * from the controller that are currently vacant and printing them
+	 * to the console.
+	 */
 	private void displayVacantUnits() {
 		ArrayList<Property> properties = controller.getVacantUnits();
 		for (Property property : properties) {
