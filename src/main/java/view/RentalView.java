@@ -2,6 +2,8 @@ package view;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import controller.RentalController;
@@ -354,7 +356,7 @@ public class RentalView {
 	}
 	
 	public void notification() {
-		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = notifyInterestedTenants();
+		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
 		if(propertyAndInterestedTenants.isEmpty()) {
 			System.out.println("No interested tenants were notified.");
 		} else {
