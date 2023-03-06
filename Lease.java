@@ -1,13 +1,29 @@
 import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
 
 public class Lease {
 
+	private static int leaseID = 0;
 	private Tenant tenant;
 	private Property property;
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private double rentAmount;
+	private double rentDue;
+	private ArrayList<Payment> allPayments;
 	
+	public Lease(Tenant tenant, Property property, LocalDate startDate, LocalDate endDate, double rentAmount) {
+		Lease.leaseID++;
+		this.tenant = tenant;
+		this.property = property;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.rentAmount = rentAmount;
+		this.rentDue = rentAmount / Period.between(startDate, endDate).toTotalMonths();
+		this.allPayments = new ArrayList<Payment>();
+	}
+
 	public Tenant getTenant() {
 		return tenant;
 	}
@@ -40,7 +56,6 @@ public class Lease {
 		this.rentAmount = rentAmount;
 	}
 
-	
 	public Property getProperty() {
 		return property;
 	}
@@ -48,13 +63,40 @@ public class Lease {
 	public void setProperty(Property property) {
 		this.property = property;
 	}
+	
+	/**
+	 * @return the leaseID
+	 */
+	public int getLeaseID() {
+		return leaseID;
+	}
 
-	public Lease(Tenant tenant, Property property, LocalDate startDate, LocalDate endDate, double rentAmount) {
-		this.tenant = tenant;
-		this.property = property;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.rentAmount = rentAmount;
+	/**
+	 * @return the rentDue
+	 */
+	public double getRentDue() {
+		return rentDue;
+	}
+
+	/**
+	 * @param rentDue the rentDue to set
+	 */
+	public void setRentDue(double rentDue) {
+		this.rentDue = rentDue;
+	}
+
+	/**
+	 * @return the allPayments
+	 */
+	public ArrayList<Payment> getAllPayments() {
+		return allPayments;
+	}
+
+	/**
+	 * @param add payment to all payments
+	 */
+	public void addPayment(Payment payment) {
+		allPayments.add(payment);
 	}
 
 	public boolean isExpired() {
@@ -64,10 +106,10 @@ public class Lease {
 
 	@Override
 	public String toString() {
-		return "\nTenant :"+this.getTenant()+"\n"
+		return "Lease ID: " + this.getLeaseID() + "\nTenant :"+this.getTenant()+"\n"
 		+ "Property :"+this.getProperty()+"\n"
 		+ "Start Date : "+this.getStartDate()+"\n"
 		+ "End Date : "+this.getEndDate()+"\n"
-		+ "Rent Amount : "+this.getRentAmount();
+		+ "Rent Amount : "+this.getRentAmount() + "\nRent Due : " + this.getRentDue();
 	}
 }

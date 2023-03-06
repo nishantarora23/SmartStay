@@ -113,8 +113,43 @@ class RentalController {
 		}
 		return propertyAndInterestedTenants;
 	}
+
+	/**
+	 * This method returns whether rent payment was successful or not
+	 * @param leaseID
+	 * @param amountPaid
+	 * @return true or false
+	 */
+	public boolean makeRentPayment(int leaseID, double amountPaid) {
+		for(Lease lease : leases) {
+			if(lease.getLeaseID() == leaseID) {
+				Payment payment = new Payment(amountPaid, LocalDate.now());
+				if(lease.getRentDue() - amountPaid < 0)
+					lease.setRentDue(0);
+				else lease.setRentDue(lease.getRentDue() - amountPaid);
+				lease.addPayment(payment);
+				return true;
+			}
+		}
+		return false;
+	}
 	
-	public void displayRentPaymentSummary(){
-		//TODO
+	/**
+	 * This method returns the tenants who paid the rent and who did not
+	 * @return paidOrNotPaidAndTenants
+	 */
+	public HashMap<String, ArrayList<String>> displayRentPaymentSummary() {
+		ArrayList<String> paidTenants = new ArrayList<String>();
+		ArrayList<String> unpaidTenants = new ArrayList<String>();
+		for(Lease lease : leases) {
+			if(lease.getRentDue() > 0) 
+				unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName());
+			else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName());
+		}
+		
+		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = new HashMap<String, ArrayList<String>>();
+		paidOrNotPaidAndTenants.put("PAID", paidTenants);
+		paidOrNotPaidAndTenants.put("UNPAID", unpaidTenants);
+		return paidOrNotPaidAndTenants;
 	}
 }
