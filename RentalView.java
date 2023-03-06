@@ -34,7 +34,7 @@ class RentalView {
 		System.out.println("7. Display vacant units");
 		System.out.println("8. Rent Payment Summary");
 		System.out.println("9. Notification");
-		
+
 		System.out.println("0. Exit");
 	}
 
@@ -72,6 +72,12 @@ class RentalView {
 				break;
 			case 7:
 				displayVacantUnits();
+				break;
+			case 8:
+				rentSummary();
+				break;
+			case 9:
+				notification();
 				break;
 			case 0:
 				System.out.println();
@@ -341,6 +347,23 @@ class RentalView {
 		ArrayList<Property> properties = controller.getVacantUnits();
 		for (Property property : properties) {
 			System.out.println(property);
+		}
+	}
+
+	public void notification() {
+		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = notifyInterestedTenants();
+		if(propertyAndInterestedTenants.isEmpty()) {
+			System.out.println("No interested tenants were notified.");
+		} else {
+			for(Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
+				String propertyAddress = entry.getKey();
+				ArrayList<String> interestedTenantNames = entry.getValue();
+				System.out.println("Property: " + propertyAddress);
+				for(String name : interestedTenantNames) {
+					System.out.println(name+" has been notified");
+				}
+				System.out.println();
+			}
 		}
 	}
 }
