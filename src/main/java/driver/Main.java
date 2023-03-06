@@ -9,6 +9,6 @@ public class Main {
 		
 		RentalController rc= new RentalController();
 		RentalView rv = new RentalView(rc);
-		rv.displayMenu();
+		rv.run();
 	}
 }
