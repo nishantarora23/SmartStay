@@ -92,19 +92,26 @@ class RentalController {
 	    return null;
 	}
 
-	public void notifyInterestedTenants(){
+	/**
+	 * This method returns a hashmap containing the property and the interested tenants
+	 * @return propertyAndInterestedTenants
+	 */
+	public HashMap<String, ArrayList<String>> notifyInterestedTenants() {
+		HashMap<String, ArrayList<String>> propertyAndInterestedTenants  = new HashMap<String, ArrayList<String>>();
 		for(Lease lease : leases) {
 			if(lease.isExpired()) {
 				Property property = lease.getProperty();
 				ArrayList<Tenant> interestedTenants = property.getAllInterestedTenants();
 				if(!interestedTenants.isEmpty()) {
-					System.out.println("The unit at " + property.getCivicAddress()  + " is available to rent. Interested tenants: ");
+					ArrayList<String> interestedTenantNames = new ArrayList<String>();
 		            for (Tenant tenant : interestedTenants) {
-		                System.out.println("Tenant Information: " + tenant.toString());
+		                interestedTenantNames.add(tenant.getFirstName() + " " + tenant.getLastName());
 		            }
+		            propertyAndInterestedTenants.put(property.getFullAddress(), interestedTenantNames);
 				}
 			}
 		}
+		return propertyAndInterestedTenants;
 	}
 	
 	public void displayRentPaymentSummary(){

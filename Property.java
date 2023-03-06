@@ -111,6 +111,8 @@ public abstract class Property extends Address {
     public ArrayList<Tenant> getAllInterestedTenants() {
     	return interestedTenants;
     }
+    
+    public abstract String getFullAddress();
 
 }
 
@@ -137,10 +139,15 @@ class Apartment extends Property {
 	
 	@Override
 	public String toString() {
-		return this.getPropertyType()+ " "+Address.getPropertyID()+" "+this.getCivicAddress()+" "+this.getStreetName()+" "+
-				this.getCity()+" "+this.getPostalCode()+" "+this.getApartmentNumber()+" "+this.getNumBedrooms()+" "
-				+this.getNumBathrooms()+" "+this.getSquareFootage();
-
+		return this.getPropertyType() + " " + this.getApartmentNumber() + ", " + Address.getPropertyID() + " " + this.getCivicAddress() + " " 
+				+ this.getStreetName() + ", " + this.getCity( )+ ", " + this.getPostalCode() + " " + this.getNumBedrooms() + " "
+				+ this.getNumBathrooms() + " " + this.getSquareFootage();
+	}
+	
+	@Override
+	public String getFullAddress() {
+		return this.getPropertyType() + " " + this.getApartmentNumber() + ", " + Address.getPropertyID() + " " + this.getCivicAddress() + " " 
+				+ this.getStreetName() + ", " + this.getCity( )+ ", " + this.getPostalCode();
 	}
 }
 
@@ -177,10 +184,15 @@ class Condo extends Property {
 	}
 	@Override
 	public String toString() {
-		return this.getPropertyType()+ " "+Address.getPropertyID()+" "+this.getCivicAddress()+" "+this.getStreetName()+" "+
-				this.getCity()+" "+this.getPostalCode()+" "+this.getUnitNumber()+" "+this.getNumBedrooms()+" "
-				+this.getNumBathrooms()+" "+this.getSquareFootage();
-
+		return this.getPropertyType() + " " + Address.getPropertyID() + " " + this.getCivicAddress() + " " + this.getStreetName() + " " +
+				this.getCity() + " " + this.getPostalCode() + " " + this.getUnitNumber() + " " + this.getNumBedrooms() + " "
+				+ this.getNumBathrooms() + " " + this.getSquareFootage();
+	}
+	
+	@Override
+	public String getFullAddress() {
+		return this.getPropertyType() + " " + this.getUnitNumber() + ", " + Address.getPropertyID() + " " + this.getCivicAddress() + " " +
+				this.getStreetNumber() + ", " + this.getStreetName() + ", " + this.getCity( )+ ", " + this.getPostalCode();
 	}
 
 }
@@ -209,10 +221,15 @@ class House extends Property {
 	
 	@Override
 	public String toString() {
-		return this.getPropertyType()+ " "+Address.getPropertyID()+" "+this.getCivicAddress()+" "+this.getStreetName()+" "+
-				this.getCity()+" "+this.getPostalCode()+" "+this.getStreetNumber()+" "+this.getNumBedrooms()+" "
-				+this.getNumBathrooms()+" "+this.getSquareFootage();
-
+		return this.getPropertyType() + " " + Address.getPropertyID() + " " + this.getCivicAddress() + " " + this.getStreetName() + " " +
+				this.getCity() + " " + this.getPostalCode() + " " + this.getStreetNumber() + " " + this.getNumBedrooms() + " "
+				+ this.getNumBathrooms() + " " + this.getSquareFootage();
+	}
+	
+	@Override
+	public String getFullAddress() {
+		return this.getPropertyType() + " " + Address.getPropertyID() + " " + this.getCivicAddress() + " " +
+				this.getStreetNumber() + ", " + this.getStreetName() + ", " + this.getCity( )+ ", " + this.getPostalCode();
 	}
 
 }
