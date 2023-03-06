@@ -1,3 +1,7 @@
+package driver;
+
+import controller.RentalController;
+import view.RentalView;
 
 public class Main {
 
@@ -5,6 +9,6 @@ public class Main {
 		
 		RentalController rc= new RentalController();
 		RentalView rv = new RentalView(rc);
-		rv.run();
+		rv.displayMenu();
 	}
 }

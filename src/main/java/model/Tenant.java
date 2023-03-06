@@ -1,3 +1,5 @@
+package model;
+
 public class Tenant {
 
 	private static int nextTenantID = 1; // static variable to generate unique tenant IDs
@@ -6,7 +8,7 @@ public class Tenant {
 	private String lastName;
 	private String email;
 	private String phoneNumber;
-
+	
 	public Tenant(String firstName, String lastName, String email, String phoneNumber) {
 		this.tenantID = nextTenantID++; // generate a unique tenant ID
 		this.firstName = firstName;
@@ -40,4 +42,5 @@ public class Tenant {
 		return "Tenant ID : " + this.getTenantID() + "\nTenant Name: " + this.getFirstName() + " " + this.getLastName() + "\nTenant Email: "
 				+ this.getEmail() + "\nTenant Phone Number: " + this.getPhoneNumber();
 	}
+	
 }

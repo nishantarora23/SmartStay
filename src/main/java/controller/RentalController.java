@@ -1,7 +1,15 @@
+package controller;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-class RentalController {
+import model.Lease;
+import model.Payment;
+import model.Property;
+import model.Tenant;
+
+public class RentalController {
 	
 	private ArrayList<Property> properties;
 	private ArrayList<Tenant> tenants;
@@ -84,7 +92,7 @@ class RentalController {
 	}
 	
 	public Tenant getTenant(int tenantID) {
-	    for (Tenant tenant : tenants) {
+		for (Tenant tenant : tenants) {
 	        if (tenant.getTenantID() == tenantID) {
 	            return tenant;
 	        }
@@ -113,7 +121,7 @@ class RentalController {
 		}
 		return propertyAndInterestedTenants;
 	}
-
+	
 	/**
 	 * This method returns whether rent payment was successful or not
 	 * @param leaseID
