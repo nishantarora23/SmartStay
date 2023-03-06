@@ -15,7 +15,7 @@ import model.Tenant;
  * tenants, and rental units. It interacts with the RentalController to perform
  * operations on the model.
  */
-public class RentalView {
+class RentalView {
 
 	private RentalController controller;
 
@@ -39,6 +39,9 @@ public class RentalView {
 		System.out.println("5. Display tenants");
 		System.out.println("6. Display rented units");
 		System.out.println("7. Display vacant units");
+		System.out.println("8. Rent Payment Summary");
+		System.out.println("9. Notification");
+		
 		System.out.println("0. Exit");
 	}
 
@@ -348,5 +351,3 @@ public class RentalView {
 		}
 	}
 }
-
-
