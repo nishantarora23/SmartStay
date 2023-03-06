@@ -32,6 +32,9 @@ class RentalView {
 		System.out.println("5. Display tenants");
 		System.out.println("6. Display rented units");
 		System.out.println("7. Display vacant units");
+		System.out.println("8. Rent Payment Summary");
+		System.out.println("9. Notification");
+		
 		System.out.println("0. Exit");
 	}
 
