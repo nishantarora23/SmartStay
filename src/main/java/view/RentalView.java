@@ -15,7 +15,7 @@ import model.Tenant;
  * tenants, and rental units. It interacts with the RentalController to perform
  * operations on the model.
  */
-class RentalView {
+public class RentalView {
 
 	private RentalController controller;
 
