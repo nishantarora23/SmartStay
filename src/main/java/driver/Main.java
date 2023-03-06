@@ -1,3 +1,7 @@
+package driver;
+
+import controller.RentalController;
+import view.RentalView;
 
 public class Main {
 

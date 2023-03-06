@@ -1,4 +1,6 @@
-import java.time.LocalDate;
+package model;
+
+import java.util.ArrayList;
 
 abstract class Address {
 
@@ -233,3 +235,4 @@ class House extends Property {
 	}
 
 }
+
