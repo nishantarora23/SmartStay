@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import controller.RentalController;
+import model.Apartment;
+import model.Condo;
+import model.House;
 import model.Lease;
 import model.Property;
 import model.Tenant;
@@ -41,7 +44,6 @@ public class RentalView {
 		System.out.println("7. Display vacant units");
 		System.out.println("8. Rent Payment Summary");
 		System.out.println("9. Notification");
-		
 		System.out.println("0. Exit");
 	}
 
@@ -94,7 +96,7 @@ public class RentalView {
 	 *
 	 * @param scanner the scanner to read user input
 	 */
-	private void addProperty(Scanner scanner) {
+	public void addProperty(Scanner scanner) {
 		System.out.println("Select property type: ");
 		System.out.println("1. Apartment");
 		System.out.println("2. Condo");
@@ -123,7 +125,7 @@ public class RentalView {
 	 *
 	 * @param scanner the scanner to read user input
 	 */
-	private void addApartment(Scanner scanner) {
+	public void addApartment(Scanner scanner) {
 		System.out.println("Enter the civic address:");
 		String civicAddress = scanner.nextLine();
 		System.out.println("Enter the street name:");
@@ -150,7 +152,7 @@ public class RentalView {
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
-	private void addCondo(Scanner scanner) {
+	public void addCondo(Scanner scanner) {
 
 		System.out.println("Enter the civic address:");
 		String civicAddress = scanner.nextLine();
@@ -189,7 +191,7 @@ public class RentalView {
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
-	private void addHouse(Scanner scanner) {
+	public void addHouse(Scanner scanner) {
 
 		System.out.println("Enter the civic address: ");
 		String civicAddress = scanner.nextLine();
@@ -224,7 +226,7 @@ public class RentalView {
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
-	private void addTenant(Scanner scanner) {
+	public void addTenant(Scanner scanner) {
 		System.out.print("Enter the first name: ");
 		String firstName = scanner.nextLine();
 
@@ -248,7 +250,7 @@ public class RentalView {
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
-	private void rentUnit(Scanner scanner) {
+	public void rentUnit(Scanner scanner) {
 
 		//drop down for tenant selection
 		System.out.print("Enter the tenant ID: ");
@@ -284,7 +286,7 @@ public class RentalView {
 
 		Property property = properties.get(propertyChoice - 1);
 
-		ArrayList<Property> vacantProperties = controller.getVacantUnits();
+		//ArrayList<Property> vacantProperties = controller.getVacantUnits();
 
 
 
@@ -308,7 +310,7 @@ public class RentalView {
 	 * Displays all properties by retrieving the list of properties
 	 * from the controller and printing them to the console.
 	 */
-	private void displayProperties() {
+	public void displayProperties() {
 		ArrayList<Property> properties = controller.getAllProperties();
 		for (Property property : properties) {
 			System.out.println(property);
@@ -319,7 +321,7 @@ public class RentalView {
 	 * Displays all tenants by retrieving the list of tenants from the 
 	 * controller and printing them to the console.
 	 */
-	private void displayTenants() {
+	public void displayTenants() {
 		ArrayList<Tenant> tenants = controller.getAllTenants();
 		for (Tenant tenant : tenants) {
 			System.out.println(tenant);
@@ -344,10 +346,27 @@ public class RentalView {
 	 * from the controller that are currently vacant and printing them
 	 * to the console.
 	 */
-	private void displayVacantUnits() {
+	public void displayVacantUnits() {
 		ArrayList<Property> properties = controller.getVacantUnits();
 		for (Property property : properties) {
 			System.out.println(property);
+		}
+	}
+	
+	public void notification() {
+		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = notifyInterestedTenants();
+		if(propertyAndInterestedTenants.isEmpty()) {
+			System.out.println("No interested tenants were notified.");
+		} else {
+			for(Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
+				String propertyAddress = entry.getKey();
+				ArrayList<String> interestedTenantNames = entry.getValue();
+				System.out.println("Property: " + propertyAddress);
+				for(String name : interestedTenantNames) {
+					System.out.println(name+" has been notified");
+				}
+				System.out.println();
+			}
 		}
 	}
 }
