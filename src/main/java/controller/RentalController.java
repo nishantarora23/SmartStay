@@ -151,8 +151,8 @@ public class RentalController {
 		ArrayList<String> unpaidTenants = new ArrayList<String>();
 		for(Lease lease : leases) {
 			if(lease.getRentDue() > 0) 
-				unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName());
-			else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName());
+				unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ":" + lease.getProperty().getFullAddress());
+			else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ":" + lease.getProperty().getFullAddress());
 		}
 		
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = new HashMap<String, ArrayList<String>>();
