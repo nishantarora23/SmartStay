@@ -1,9 +1,10 @@
 package model;
 
 public class House extends Property {
-	
+
 	private int streetNumber;
-	
+	private int houseNumber;
+
 	public int getStreetNumber() {
 		return streetNumber;
 	}
@@ -11,28 +12,38 @@ public class House extends Property {
 	public void setStreetNumber(int streetNumber) {
 		this.streetNumber = streetNumber;
 	}
-	
-	public House(String civicAddress, String streetName, String city, String postalCode, int streetNumber, int numBedrooms, int numBathrooms, int squareFootage) {
-		super(civicAddress, streetName, city, postalCode, numBedrooms, numBathrooms, squareFootage);	
+
+	public int getHouseNumber() {
+		return houseNumber;
+	}
+
+	public void setHouseNumber(int houseNumber) {
+		this.houseNumber = houseNumber;
+	}
+
+	public House(String streetName, String city, String postalCode, String province, String country, int noOfBedrooms,
+			int noOfBathrooms, int squareFootage, int houseNumber, int streetNumber) {
+		super(streetName, city, postalCode, province, country, noOfBedrooms, noOfBathrooms, squareFootage);
+		this.houseNumber = houseNumber;
 		this.streetNumber = streetNumber;
 	}
-	
+
 	@Override
 	public String getPropertyType() {
 		return "House";
 	}
-	
+
 	@Override
 	public String toString() {
-		return this.getPropertyType() + " " + Address.getPropertyID() + " " + this.getCivicAddress() + " " + this.getStreetName() + " " +
-				this.getCity() + " " + this.getPostalCode() + " " + this.getStreetNumber() + " " + this.getNumBedrooms() + " "
-				+ this.getNumBathrooms() + " " + this.getSquareFootage();
+		return this.getPropertyType() + ", " + super.getPropertyId() + ", " + this.houseNumber + ", "
+				+ this.streetNumber + ", " + super.getStreetName() + ", " + super.getCity() + ", " + super.getProvince()
+				+ ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
-	
+
 	@Override
 	public String getFullAddress() {
-		return this.getPropertyType() + " " + Address.getPropertyID() + " " + this.getCivicAddress() + " " +
-				this.getStreetNumber() + ", " + this.getStreetName() + ", " + this.getCity( )+ ", " + this.getPostalCode();
+		return this.houseNumber + ", " + this.streetNumber + ", " + super.getStreetName() + ", " + super.getCity()
+				+ ", " + super.getProvince() + ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
 
 }
