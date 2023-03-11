@@ -258,7 +258,7 @@ public class RentalView {
 		Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
 		System.out.println(
 				"Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: " + tenant.getTenantID()
-				+ ". Please remember to keep this ID for any future communication with our rental system.");
+						+ ". Please remember to keep this ID for any future communication with our rental system.");
 		controller.addTenant(tenant);
 	}
 
@@ -301,15 +301,15 @@ public class RentalView {
 
 		ArrayList<Property> vacantProperties = controller.getVacantUnits();
 
-		boolean isVacant=false;
-		for(Property vacantProperty : vacantProperties) {
-			if(vacantProperty.getPropertyId() == property.getPropertyId()) {
-				isVacant=true;
+		boolean isVacant = false;
+		for (Property vacantProperty : vacantProperties) {
+			if (vacantProperty.getPropertyId() == property.getPropertyId()) {
+				isVacant = true;
 				break;
 			}
 		}
 
-		if(isVacant) {
+		if (isVacant) {
 			System.out.print("Enter the lease start date (yyyy-MM-dd): ");
 			String startDateStr = scanner.nextLine();
 			LocalDate startDate = LocalDate.parse(startDateStr);
@@ -324,8 +324,7 @@ public class RentalView {
 
 			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
 			controller.addLease(lease);
-		}
-		else {
+		} else {
 			property.addInterestedTenants(tenant);
 			System.out.println("Sorry this is rented out. You will be notified once the property gets available.");
 		}
@@ -377,6 +376,10 @@ public class RentalView {
 		}
 	}
 
+	/**
+	 * Sends notifications to all potential tenants of a property through the
+	 * controller.
+	 */
 	public void notification() {
 		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
 		if (propertyAndInterestedTenants.isEmpty()) {
