@@ -258,7 +258,7 @@ public class RentalView {
 		Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
 		System.out.println(
 				"Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: " + tenant.getTenantID()
-						+ ". Please remember to keep this ID for any future communication with our rental system.");
+				+ ". Please remember to keep this ID for any future communication with our rental system.");
 		controller.addTenant(tenant);
 	}
 
@@ -282,11 +282,6 @@ public class RentalView {
 		}
 
 		ArrayList<Property> properties = controller.getAllProperties();
-		// if (properties.isEmpty()) {
-		// System.out.println("Sorry, there are no vacant units.");
-		// return;
-		// }
-
 		System.out.println("Select a property to rent:");
 		for (int i = 0; i < properties.size(); i++) {
 			Property property = properties.get(i);
@@ -304,22 +299,36 @@ public class RentalView {
 
 		Property property = properties.get(propertyChoice - 1);
 
-		// ArrayList<Property> vacantProperties = controller.getVacantUnits();
+		ArrayList<Property> vacantProperties = controller.getVacantUnits();
 
-		System.out.print("Enter the lease start date (yyyy-MM-dd): ");
-		String startDateStr = scanner.nextLine();
-		LocalDate startDate = LocalDate.parse(startDateStr);
+		boolean isVacant=false;
+		for(Property vacantProperty : vacantProperties) {
+			if(vacantProperty.getPropertyId() == property.getPropertyId()) {
+				isVacant=true;
+				break;
+			}
+		}
 
-		System.out.print("Enter the lease end date (yyyy-MM-dd): ");
-		String endDateStr = scanner.nextLine();
-		LocalDate endDate = LocalDate.parse(endDateStr);
+		if(isVacant) {
+			System.out.print("Enter the lease start date (yyyy-MM-dd): ");
+			String startDateStr = scanner.nextLine();
+			LocalDate startDate = LocalDate.parse(startDateStr);
 
-		System.out.print("Enter the rent amount: ");
-		double rentAmount = scanner.nextDouble();
-		scanner.nextLine();
+			System.out.print("Enter the lease end date (yyyy-MM-dd): ");
+			String endDateStr = scanner.nextLine();
+			LocalDate endDate = LocalDate.parse(endDateStr);
 
-		Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
-		controller.addLease(lease);
+			System.out.print("Enter the rent amount: ");
+			double rentAmount = scanner.nextDouble();
+			scanner.nextLine();
+
+			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
+			controller.addLease(lease);
+		}
+		else {
+			property.addInterestedTenants(tenant);
+			System.out.println("Sorry this is rented out. You will be notified once the property gets available.");
+		}
 	}
 
 	/**
