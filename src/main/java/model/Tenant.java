@@ -43,4 +43,5 @@ public class Tenant {
 				+ this.getEmail() + "\nTenant Phone Number: " + this.getPhoneNumber();
 	}
 	
+	
 }

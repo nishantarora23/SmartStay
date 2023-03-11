@@ -3,7 +3,8 @@ package model;
 import java.util.ArrayList;
 
 public abstract class Property {
-	private static int propertyId = 1;
+	private static int nextPropertyId = 1;
+	private int propertyId;
 	private String streetName;
 	private String city;
 	private String postalCode;
@@ -17,7 +18,7 @@ public abstract class Property {
 
 	public Property(String streetName, String city, String postalCode, String province, String country,
 			int noOfBedrooms, int noOfBathrooms, double squareFootage) {
-		Property.propertyId++;
+		this.propertyId=Property.nextPropertyId++;
 		this.streetName = streetName;
 		this.city = city;
 		this.postalCode = postalCode;
@@ -101,8 +102,15 @@ public abstract class Property {
 	public abstract String getPropertyType();
 
 	public ArrayList<Tenant> getAllInterestedTenants() {
-		// TODO Auto-generated method stub
-		return null;
+		return interestedTenants;
+	}
+	
+	public void addInterestedTenants(Tenant tenant) {
+		interestedTenants.add(tenant);
+	}
+	
+	public void removeInterestedTenants(Tenant tenant) {
+		interestedTenants.add(tenant);
 	}
 
 }
