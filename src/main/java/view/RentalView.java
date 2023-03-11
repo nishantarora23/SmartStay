@@ -12,13 +12,14 @@ import model.Condo;
 import model.House;
 import model.Lease;
 import model.Property;
+import model.PropertyBuilder;
 import model.Tenant;
 
 /**
- * The RentalView class represents the view of the SmartStay (rental management system). 
- * It handles user input and displays information related to properties, 
- * tenants, and rental units. It interacts with the RentalController to perform
- * operations on the model.
+ * The RentalView class represents the view of the SmartStay (rental management
+ * system). It handles user input and displays information related to
+ * properties, tenants, and rental units. It interacts with the RentalController
+ * to perform operations on the model.
  */
 public class RentalView {
 
@@ -50,7 +51,8 @@ public class RentalView {
 	}
 
 	/**
-	 * Runs the rental management system. Handles user input and performs operations based on the input.
+	 * Runs the rental management system. Handles user input and performs operations
+	 * based on the input.
 	 */
 	public void run() {
 		Scanner scanner = new Scanner(System.in);
@@ -94,7 +96,8 @@ public class RentalView {
 	}
 
 	/**
-	 * Prompts the user to select a property type and adds the property to the model.
+	 * Prompts the user to select a property type and adds the property to the
+	 * model.
 	 *
 	 * @param scanner the scanner to read user input
 	 */
@@ -123,108 +126,119 @@ public class RentalView {
 	}
 
 	/**
-	 * Prompts the user to enter details about an apartment and adds it to the model.
+	 * Prompts the user to enter details about an apartment and adds it to the
+	 * model.
 	 *
 	 * @param scanner the scanner to read user input
 	 */
 	public void addApartment(Scanner scanner) {
-		System.out.println("Enter the civic address:");
-		String civicAddress = scanner.nextLine();
+		System.out.println("Enter the apartment number:");
+		int apartmentNumber = scanner.nextInt();
+		scanner.nextLine();
 		System.out.println("Enter the street name:");
 		String streetName = scanner.nextLine();
 		System.out.println("Enter the city:");
 		String city = scanner.nextLine();
+		System.out.println("Enter the province:");
+		String province = scanner.nextLine();
+		System.out.println("Enter the Country:");
+		String country = scanner.nextLine();
 		System.out.println("Enter the postal code:");
 		String postalCode = scanner.nextLine();
-		System.out.println("Enter the apartment number:");
-		int apartmentNumber = scanner.nextInt();
 		System.out.println("Enter the number of bedrooms:");
 		int numBedrooms = scanner.nextInt();
 		System.out.println("Enter the number of bathrooms:");
 		int numBathrooms = scanner.nextInt();
 		System.out.println("Enter the square footage:");
 		int squareFootage = scanner.nextInt();
-		Apartment apartment = new Apartment(civicAddress, streetName, city, postalCode, apartmentNumber, numBedrooms, numBathrooms, squareFootage);
+		Apartment apartment = new PropertyBuilder().withStreetName(streetName).withCity(city).withProvince(province)
+				.withCountry(country).withPostalCode(postalCode).withApartmentNumber(apartmentNumber)
+				.withNumBedrooms(numBedrooms).withNumBathrooms(numBathrooms).withSquareFootage(squareFootage)
+				.buildApartment();
 		System.out.println("Apartment added successfully.");
 		controller.addProperty(apartment);
 	}
 
 	/**
-	 * Prompts the user to input details of a new Condo and adds it to the Controller's list of properties.
+	 * Prompts the user to input details of a new Condo and adds it to the
+	 * Controller's list of properties.
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
 	public void addCondo(Scanner scanner) {
 
-		System.out.println("Enter the civic address:");
-		String civicAddress = scanner.nextLine();
-
+		System.out.println("Enter the unit number:");
+		int unitNumber = scanner.nextInt();
+		scanner.nextLine();
 		System.out.println("Enter the street name:");
 		String streetName = scanner.nextLine();
-
 		System.out.println("Enter the city:");
 		String city = scanner.nextLine();
-
+		System.out.println("Enter the province:");
+		String province = scanner.nextLine();
+		System.out.println("Enter the Country:");
+		String country = scanner.nextLine();
 		System.out.println("Enter the postal code:");
 		String postalCode = scanner.nextLine();
-
 		System.out.println("Enter the street number:");
 		int streetNumber = scanner.nextInt();
 		scanner.nextLine(); // consume the new line character
-
-		System.out.println("Enter the unit number:");
-		String unitNumber = scanner.nextLine();
-
 		System.out.println("Enter the number of bedrooms:");
 		int numBedrooms = scanner.nextInt();
-
 		System.out.println("Enter the number of bathrooms:");
 		int numBathrooms = scanner.nextInt();
-
 		System.out.println("Enter the square footage:");
 		int squareFootage = scanner.nextInt();
 
-		Condo condo = new Condo(civicAddress, streetName, city, postalCode, streetNumber, unitNumber, numBedrooms, numBathrooms, squareFootage);
+		Condo condo = new PropertyBuilder().withStreetName(streetName).withCity(city).withProvince(province)
+				.withCountry(country).withPostalCode(postalCode).withUnitNumber(unitNumber)
+				.withStreetNumber(streetNumber).withNumBedrooms(numBedrooms).withNumBathrooms(numBathrooms)
+				.withSquareFootage(squareFootage).buildCondo();
+
 		controller.addProperty(condo);
 	}
 
 	/**
-	 * Prompts the user to input details of a new House and adds it to the Controller's list of properties.
+	 * Prompts the user to input details of a new House and adds it to the
+	 * Controller's list of properties.
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
 	public void addHouse(Scanner scanner) {
 
-		System.out.println("Enter the civic address: ");
-		String civicAddress = scanner.nextLine();
-
-		System.out.println("Enter the street name: ");
-		String streetName = scanner.nextLine();
-
-		System.out.println("Enter the city: ");
-		String city = scanner.nextLine();
-
-		System.out.println("Enter the postal code: ");
-		String postalCode = scanner.nextLine();
-
+		System.out.println("Enter the House Number: ");
+		int houseNo = scanner.nextInt();
 		System.out.println("Enter the street number: ");
 		int streetNumber = scanner.nextInt();
-
+		scanner.nextLine();
+		System.out.println("Enter the street name: ");
+		String streetName = scanner.nextLine();
+		System.out.println("Enter the city: ");
+		String city = scanner.nextLine();
+		System.out.println("Enter the province:");
+		String province = scanner.nextLine();
+		System.out.println("Enter the Country:");
+		String country = scanner.nextLine();
+		System.out.println("Enter the postal code: ");
+		String postalCode = scanner.nextLine();
 		System.out.println("Enter the number of bedrooms: ");
 		int numBedrooms = scanner.nextInt();
-
 		System.out.println("Enter the number of bathrooms: ");
 		int numBathrooms = scanner.nextInt();
-
 		System.out.println("Enter the square footage: ");
 		int squareFootage = scanner.nextInt();
 
-		House house = new House(civicAddress, streetName, city, postalCode, streetNumber, numBedrooms, numBathrooms, squareFootage);
+		House house = new PropertyBuilder().withStreetNumber(streetNumber).withStreetName(streetName).withCity(city)
+				.withProvince(province).withCountry(country).withPostalCode(postalCode).withHouseNumber(houseNo)
+				.withNumBedrooms(numBedrooms).withNumBathrooms(numBathrooms).withSquareFootage(squareFootage)
+				.buildHouse();
+
 		controller.addProperty(house);
 	}
 
 	/**
-	 * Prompts the user to input details of a new Tenant and adds it to the Controller's list of tenants.
+	 * Prompts the user to input details of a new Tenant and adds it to the
+	 * Controller's list of tenants.
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
@@ -242,19 +256,21 @@ public class RentalView {
 		String email = scanner.nextLine();
 
 		Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
-		System.out.println("Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: " + tenant.getTenantID() + 
-				". Please remember to keep this ID for any future communication with our rental system.");
+		System.out.println(
+				"Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: " + tenant.getTenantID()
+				+ ". Please remember to keep this ID for any future communication with our rental system.");
 		controller.addTenant(tenant);
 	}
 
 	/**
-	 * Prompts the user to select a Tenant and a Property, then adds a new Lease to the Controller's list of leases.
+	 * Prompts the user to select a Tenant and a Property, then adds a new Lease to
+	 * the Controller's list of leases.
 	 * 
 	 * @param scanner a Scanner object used to receive input from the user
 	 */
 	public void rentUnit(Scanner scanner) {
 
-		//drop down for tenant selection
+		// drop down for tenant selection
 		System.out.print("Enter the tenant ID: ");
 		int tenantID = scanner.nextInt();
 		scanner.nextLine();
@@ -266,15 +282,10 @@ public class RentalView {
 		}
 
 		ArrayList<Property> properties = controller.getAllProperties();
-		//		if (properties.isEmpty()) {
-		//			System.out.println("Sorry, there are no vacant units.");
-		//			return;
-		//		}
-
 		System.out.println("Select a property to rent:");
 		for (int i = 0; i < properties.size(); i++) {
 			Property property = properties.get(i);
-			System.out.println((i+1) + ". " + property.getCivicAddress());
+			System.out.println((i + 1) + ". " + property);
 		}
 
 		System.out.print("Enter your choice: ");
@@ -288,29 +299,41 @@ public class RentalView {
 
 		Property property = properties.get(propertyChoice - 1);
 
-		//ArrayList<Property> vacantProperties = controller.getVacantUnits();
+		ArrayList<Property> vacantProperties = controller.getVacantUnits();
 
+		boolean isVacant=false;
+		for(Property vacantProperty : vacantProperties) {
+			if(vacantProperty.getPropertyId() == property.getPropertyId()) {
+				isVacant=true;
+				break;
+			}
+		}
 
+		if(isVacant) {
+			System.out.print("Enter the lease start date (yyyy-MM-dd): ");
+			String startDateStr = scanner.nextLine();
+			LocalDate startDate = LocalDate.parse(startDateStr);
 
-		System.out.print("Enter the lease start date (yyyy-MM-dd): ");
-		String startDateStr = scanner.nextLine();
-		LocalDate startDate = LocalDate.parse(startDateStr);
+			System.out.print("Enter the lease end date (yyyy-MM-dd): ");
+			String endDateStr = scanner.nextLine();
+			LocalDate endDate = LocalDate.parse(endDateStr);
 
-		System.out.print("Enter the lease end date (yyyy-MM-dd): ");
-		String endDateStr = scanner.nextLine();
-		LocalDate endDate = LocalDate.parse(endDateStr);
+			System.out.print("Enter the rent amount: ");
+			double rentAmount = scanner.nextDouble();
+			scanner.nextLine();
 
-		System.out.print("Enter the rent amount: ");
-		double rentAmount = scanner.nextDouble();
-		scanner.nextLine();
-
-		Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
-		controller.addLease(lease);
+			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
+			controller.addLease(lease);
+		}
+		else {
+			property.addInterestedTenants(tenant);
+			System.out.println("Sorry this is rented out. You will be notified once the property gets available.");
+		}
 	}
 
 	/**
-	 * Displays all properties by retrieving the list of properties
-	 * from the controller and printing them to the console.
+	 * Displays all properties by retrieving the list of properties from the
+	 * controller and printing them to the console.
 	 */
 	public void displayProperties() {
 		ArrayList<Property> properties = controller.getAllProperties();
@@ -320,8 +343,8 @@ public class RentalView {
 	}
 
 	/**
-	 * Displays all tenants by retrieving the list of tenants from the 
-	 * controller and printing them to the console.
+	 * Displays all tenants by retrieving the list of tenants from the controller
+	 * and printing them to the console.
 	 */
 	public void displayTenants() {
 		ArrayList<Tenant> tenants = controller.getAllTenants();
@@ -331,7 +354,7 @@ public class RentalView {
 	}
 
 	/**
-	 * 	Displays all rented units by retrieving the list of leases from the
+	 * Displays all rented units by retrieving the list of leases from the
 	 * controller and printing them to the console if the lease is still active.
 	 */
 	private void displayRentedUnits() {
@@ -344,9 +367,8 @@ public class RentalView {
 	}
 
 	/**
-	 * 	Displays all vacant units by retrieving the list of properties
-	 * from the controller that are currently vacant and printing them
-	 * to the console.
+	 * Displays all vacant units by retrieving the list of properties from the
+	 * controller that are currently vacant and printing them to the console.
 	 */
 	public void displayVacantUnits() {
 		ArrayList<Property> properties = controller.getVacantUnits();
@@ -354,18 +376,18 @@ public class RentalView {
 			System.out.println(property);
 		}
 	}
-	
+
 	public void notification() {
 		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
-		if(propertyAndInterestedTenants.isEmpty()) {
+		if (propertyAndInterestedTenants.isEmpty()) {
 			System.out.println("No interested tenants were notified.");
 		} else {
-			for(Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
+			for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
 				String propertyAddress = entry.getKey();
 				ArrayList<String> interestedTenantNames = entry.getValue();
 				System.out.println("Property: " + propertyAddress);
-				for(String name : interestedTenantNames) {
-					System.out.println(name+" has been notified");
+				for (String name : interestedTenantNames) {
+					System.out.println(name + " has been notified");
 				}
 				System.out.println();
 			}

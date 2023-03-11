@@ -2,26 +2,35 @@ package model;
 
 import java.util.ArrayList;
 
-abstract class Address {
-
+public abstract class Property {
+	private static int nextPropertyId = 1;
+	private int propertyId;
 	private String streetName;
 	private String city;
 	private String postalCode;
-	private static int propertyID = 1000;
-	
-	public Address(String streetName, String city, String postalCode) {
+	private String province;
+	private String country;
+	private int noOfBedrooms;
+	private int noOfBathrooms;
+	private double squareFootage;
+
+	ArrayList<Tenant> interestedTenants = new ArrayList<>();
+
+	public Property(String streetName, String city, String postalCode, String province, String country,
+			int noOfBedrooms, int noOfBathrooms, double squareFootage) {
+		this.propertyId=Property.nextPropertyId++;
 		this.streetName = streetName;
 		this.city = city;
 		this.postalCode = postalCode;
-		Address.propertyID++;
+		this.province = province;
+		this.country = country;
+		this.noOfBedrooms = noOfBedrooms;
+		this.noOfBathrooms = noOfBathrooms;
+		this.squareFootage = squareFootage;
 	}
 
-	public static int getPropertyID() {
-		return propertyID;
-	}
-
-	public static void setPropertyID(int propertyID) {
-		Address.propertyID = propertyID;
+	public int getPropertyId() {
+		return propertyId;
 	}
 
 	public String getStreetName() {
@@ -48,73 +57,60 @@ abstract class Address {
 		this.postalCode = postalCode;
 	}
 
-	public abstract String getPropertyType();
-
-}
-
-public abstract class Property extends Address {
-
-	private String civicAddress;
-	private int numBedrooms;
-	private int numBathrooms;
-	private int squareFootage;
-	private ArrayList<Tenant> interestedTenants;
-	
-
-	public Property(String civicAddress,String streetName, String city, String postalCode,int numBedrooms, int numBathrooms, int squareFootage) {
-		super(streetName, city, postalCode);
-		this.civicAddress = civicAddress;
-		this.numBedrooms = numBedrooms;
-		this.numBathrooms = numBathrooms;
-		this.squareFootage = squareFootage;
-		this.interestedTenants = new ArrayList<>();
-	}
-	
-	public String getCivicAddress() {
-		return civicAddress;
+	public String getProvince() {
+		return province;
 	}
 
-	public void setCivicAddress(String civicAddress) {
-		this.civicAddress = civicAddress;
+	public void setProvince(String province) {
+		this.province = province;
 	}
 
-	public int getNumBedrooms() {
-		return numBedrooms;
+	public String getCountry() {
+		return country;
 	}
 
-	public void setNumBedrooms(int numBedrooms) {
-		this.numBedrooms = numBedrooms;
+	public void setCountry(String country) {
+		this.country = country;
 	}
 
-	public int getNumBathrooms() {
-		return numBathrooms;
+	public int getNoOfBedrooms() {
+		return noOfBedrooms;
 	}
 
-	public void setNumBathrooms(int numBathrooms) {
-		this.numBathrooms = numBathrooms;
+	public void setNoOfBedrooms(int noOfBedrooms) {
+		this.noOfBedrooms = noOfBedrooms;
 	}
 
-	public int getSquareFootage() {
+	public int getNoOfBathrooms() {
+		return noOfBathrooms;
+	}
+
+	public void setNoOfBathrooms(int noOfBathrooms) {
+		this.noOfBathrooms = noOfBathrooms;
+	}
+
+	public double getSquareFootage() {
 		return squareFootage;
 	}
 
-	public void setSquareFootage(int squareFootage) {
+	public void setSquareFootage(double squareFootage) {
 		this.squareFootage = squareFootage;
 	}
-	
-	public void addInterestedTenant(Tenant tenant) {
-        interestedTenants.add(tenant);
-    }
 
-    public void removeInterestedTenant(Tenant tenant) {
-        interestedTenants.remove(tenant);
-    }
-    
-    public ArrayList<Tenant> getAllInterestedTenants() {
-    	return interestedTenants;
-    }
-    
-    public abstract String getFullAddress();
+	public abstract String getFullAddress();
+
+	public abstract String getPropertyType();
+
+	public ArrayList<Tenant> getAllInterestedTenants() {
+		return interestedTenants;
+	}
+	
+	public void addInterestedTenants(Tenant tenant) {
+		interestedTenants.add(tenant);
+	}
+	
+	public void removeInterestedTenants(Tenant tenant) {
+		interestedTenants.add(tenant);
+	}
 
 }
-
