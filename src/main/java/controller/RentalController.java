@@ -4,21 +4,24 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import model.DatabaseUtility;
 import model.Lease;
 import model.Payment;
 import model.Property;
 import model.Tenant;
 
 public class RentalController {
-	
+
 	private ArrayList<Property> properties;
 	private ArrayList<Tenant> tenants;
 	private ArrayList<Lease> leases;
+
 	
 	public RentalController() {
-		this.properties = new ArrayList<>();
-		this.tenants = new ArrayList<>();
-		this.leases = new ArrayList<>();
+		DatabaseUtility databaseUtility = DatabaseUtility.getInstance();
+		this.tenants = databaseUtility.getTenants();
+		this.properties = databaseUtility.getProperties();
+		this.leases = databaseUtility.getLeases();
 	}
 
 	public void addProperty(Property property) {
@@ -28,7 +31,7 @@ public class RentalController {
 	public void addTenant(Tenant tenant) {
 		tenants.add(tenant);
 	}
-	
+
 	public ArrayList<Property> getAllProperties() {
 		return properties;
 	}
@@ -36,13 +39,13 @@ public class RentalController {
 	public ArrayList<Tenant> getAllTenants() {
 		return tenants;
 	}
-	
+
 	public ArrayList<Lease> getAllLeases() {
 		return leases;
 	}
 
 	public void addLease(Lease lease) {
-	    leases.add(lease);
+		leases.add(lease);
 	}
 
 	public void rentUnit(Property property, Tenant tenant, LocalDate startDate, LocalDate endDate, double rentAmount) {
@@ -90,14 +93,14 @@ public class RentalController {
 		}
 		return vacantUnits;
 	}
-	
+
 	public Tenant getTenant(int tenantID) {
 		for (Tenant tenant : tenants) {
-	        if (tenant.getTenantID() == tenantID) {
-	            return tenant;
-	        }
-	    }
-	    return null;
+			if (tenant.getTenantID() == tenantID) {
+				return tenant;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -112,16 +115,16 @@ public class RentalController {
 				ArrayList<Tenant> interestedTenants = property.getAllInterestedTenants();
 				if(!interestedTenants.isEmpty()) {
 					ArrayList<String> interestedTenantNames = new ArrayList<String>();
-		            for (Tenant tenant : interestedTenants) {
-		                interestedTenantNames.add(tenant.getFirstName() + " " + tenant.getLastName());
-		            }
-		            propertyAndInterestedTenants.put(property.getFullAddress(), interestedTenantNames);
+					for (Tenant tenant : interestedTenants) {
+						interestedTenantNames.add(tenant.getFirstName() + " " + tenant.getLastName());
+					}
+					propertyAndInterestedTenants.put(property.getFullAddress(), interestedTenantNames);
 				}
 			}
 		}
 		return propertyAndInterestedTenants;
 	}
-	
+
 	/**
 	 * This method returns whether rent payment was successful or not
 	 * @param leaseID
@@ -141,7 +144,7 @@ public class RentalController {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * This method returns the tenants who paid the rent and who did not
 	 * @return paidOrNotPaidAndTenants
@@ -154,7 +157,7 @@ public class RentalController {
 				unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ":" + lease.getProperty().getFullAddress());
 			else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ":" + lease.getProperty().getFullAddress());
 		}
-		
+
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = new HashMap<String, ArrayList<String>>();
 		paidOrNotPaidAndTenants.put("PAID", paidTenants);
 		paidOrNotPaidAndTenants.put("UNPAID", unpaidTenants);
