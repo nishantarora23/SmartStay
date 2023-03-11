@@ -3,7 +3,6 @@ package model;
 import java.util.ArrayList;
 
 /**
- * 
  * A class representing a property.
  */
 public abstract class Property {
@@ -19,7 +18,7 @@ public abstract class Property {
 	private double squareFootage;
 
 	// A list of interested tenants for the Property instance.
-	ArrayList<Tenant> interestedTenants = new ArrayList<>();
+	ArrayList<Tenant> interestedTenants;
 
 	/**
 	 * Creates a new Property object with the given parameters.
@@ -44,6 +43,7 @@ public abstract class Property {
 		this.noOfBedrooms = noOfBedrooms;
 		this.noOfBathrooms = noOfBathrooms;
 		this.squareFootage = squareFootage;
+		this.interestedTenants = new ArrayList<Tenant>();
 	}
 
 	/**

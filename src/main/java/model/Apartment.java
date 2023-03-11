@@ -67,7 +67,7 @@ public class Apartment extends Property {
 	 */
 	@Override
 	public String toString() {
-		return this.getPropertyType() + ", " + super.getPropertyId() + ", " + this.apartmentNumber + ", "
+		return super.getPropertyId() + ". " + this.getPropertyType() + " #" + this.getApartmentNumber() + ", "
 				+ super.getStreetName() + ", " + super.getCity() + ", " + super.getProvince() + ", "
 				+ super.getCountry() + ", " + super.getPostalCode();
 	}
@@ -80,7 +80,7 @@ public class Apartment extends Property {
 	 */
 	@Override
 	public String getFullAddress() {
-		return this.apartmentNumber + ", " + super.getStreetName() + ", " + super.getCity() + ", " + super.getProvince()
-				+ ", " + super.getCountry() + ", " + super.getPostalCode();
+		return this.getPropertyType() + " " + this.getApartmentNumber() + ", " + super.getStreetName() + ", " 
+				+ super.getCity() + ", " + super.getProvince() + ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
 }
