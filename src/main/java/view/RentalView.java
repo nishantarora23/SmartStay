@@ -45,8 +45,9 @@ public class RentalView {
 		System.out.println("5. Display tenants");
 		System.out.println("6. Display rented units");
 		System.out.println("7. Display vacant units");
-		System.out.println("8. Rent Payment Summary");
-		System.out.println("9. Notification");
+		System.out.println("8. Display all leases");
+		System.out.println("9. Rent Payment Summary");
+		System.out.println("10. Notification");
 		System.out.println("0. Exit");
 	}
 
@@ -85,6 +86,15 @@ public class RentalView {
 				break;
 			case 7:
 				displayVacantUnits();
+				break;
+			case 8:
+				displayAllLeases();
+				break;
+			case 9:
+				displayRentSummary();
+				break;
+			case 10:
+				notification();
 				break;
 			case 0:
 				System.out.println();
@@ -375,6 +385,17 @@ public class RentalView {
 			System.out.println(property);
 		}
 	}
+	
+	/**
+	 * Displays all leases by retrieving the list of leases from the controller
+	 * and printing them to the console.
+	 */
+	public void displayAllLeases() {
+		ArrayList<Lease> leases = controller.getAllLeases();
+		for (Lease lease : leases) {
+			System.out.println(lease);
+		}
+	}
 
 	/**
 	 * Sends notifications to all potential tenants of a property through the
@@ -395,5 +416,12 @@ public class RentalView {
 				System.out.println();
 			}
 		}
+	}
+	
+	/**
+	 * Displays the summary of all the paid and unpaid rents.
+	 */
+	public void displayRentSummary() {
+		controller.displayRentPaymentSummary();
 	}
 }
