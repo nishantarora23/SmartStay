@@ -90,8 +90,8 @@ public class House extends Property {
 	 */
 	@Override
 	public String toString() {
-		return this.getPropertyType() + ", " + super.getPropertyId() + ", " + this.houseNumber + ", "
-				+ this.streetNumber + ", " + super.getStreetName() + ", " + super.getCity() + ", " + super.getProvince()
+		return super.getPropertyId() + ". " + this.getPropertyType() + " #" +  this.getHouseNumber() + ", "
+				+ this.getStreetNumber() + ", " + super.getStreetName() + ", " + super.getCity() + ", " + super.getProvince()
 				+ ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
 	
@@ -103,8 +103,8 @@ public class House extends Property {
 	 */
 	@Override
 	public String getFullAddress() {
-		return this.houseNumber + ", " + this.streetNumber + ", " + super.getStreetName() + ", " + super.getCity()
-				+ ", " + super.getProvince() + ", " + super.getCountry() + ", " + super.getPostalCode();
+		return this.getPropertyType() + " " + this.getHouseNumber() + ", " + this.getStreetNumber() + ", " + super.getStreetName() + ", " 
+				+ super.getCity() + ", " + super.getProvince() + ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
 
 }

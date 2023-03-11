@@ -90,7 +90,7 @@ public class Condo extends Property {
 	 */
 	@Override
 	public String toString() {
-		return this.getPropertyType() + ", " + super.getPropertyId() + ", " + this.unitNumber + ", " + this.streetNumber
+		return super.getPropertyId() + ". " + this.getPropertyType() + " #" + this.getUnitNumber() + ", " + this.getStreetNumber()
 				+ ", " + super.getStreetName() + ", " + super.getCity() + ", " + super.getProvince() + ", "
 				+ super.getCountry() + ", " + super.getPostalCode();
 	}
@@ -103,7 +103,7 @@ public class Condo extends Property {
 	 */
 	@Override
 	public String getFullAddress() {
-		return this.unitNumber + ", " + this.streetNumber + ", " + super.getStreetName() + ", " + super.getCity() + ", "
+		return this.getPropertyType() + " " + this.getUnitNumber() + ", " + this.getStreetNumber() + ", " + super.getStreetName() + ", " + super.getCity() + ", "
 				+ super.getProvince() + ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
 }
