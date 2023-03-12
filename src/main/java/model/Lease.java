@@ -34,7 +34,7 @@ public class Lease {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.rentAmount = rentAmount;
-		this.rentDue = rentAmount / Period.between(startDate, endDate).toTotalMonths();
+		this.rentDue = calculateRentDue();
 		this.allPayments = new ArrayList<Payment>();
 	}
 
@@ -140,6 +140,16 @@ public class Lease {
 	 */
 	public void setRentDue(double rentDue) {
 		this.rentDue = rentDue;
+	}
+	
+	/**
+	 * Calculates the rent due
+	 * @return rentDue
+	 */
+	public double calculateRentDue() {
+		if(Period.between(startDate, endDate).toTotalMonths() <= 0)
+			return rentAmount;
+		else return rentAmount / Period.between(startDate, endDate).toTotalMonths();
 	}
 
 	/**
