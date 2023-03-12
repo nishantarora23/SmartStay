@@ -193,18 +193,25 @@ public class RentalController {
 	 * @param amountPaid
 	 * @return true or false
 	 */
-	public boolean makeRentPayment(int leaseID, double amountPaid) {
+	public void makeRentPayment(int leaseID, double amountPaid) {
+		boolean leaseFound = false;
 		for(Lease lease : leases) {
-			if(lease.getLeaseID() == leaseID) {
+			if(lease.getLeaseID() == leaseID && !lease.isExpired()) {
 				Payment payment = new Payment(amountPaid, LocalDate.now());
-				if(lease.getRentDue() - amountPaid < 0)
-					lease.setRentDue(0);
-				else lease.setRentDue(lease.getRentDue() - amountPaid);
 				lease.addPayment(payment);
-				return true;
+				if(lease.getRentDue() - amountPaid < 0) {
+					lease.setRentDue(0);
+				}
+				else {
+					lease.setRentDue(lease.getRentDue() - amountPaid);
+					System.out.println("Your rent payment is successful!");
+				}
+				leaseFound = true;
+				break;
 			}
 		}
-		return false;
+		if(!leaseFound)
+			System.out.println("No active lease found.");
 	}
 
 	/**
@@ -215,9 +222,11 @@ public class RentalController {
 		ArrayList<String> paidTenants = new ArrayList<String>();
 		ArrayList<String> unpaidTenants = new ArrayList<String>();
 		for(Lease lease : leases) {
-			if(lease.getRentDue() > 0) 
-				unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ": " + lease.getProperty().getFullAddress());
-			else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ": " + lease.getProperty().getFullAddress());
+			if(!lease.isExpired()) {
+				if(lease.getRentDue() > 0) 
+					unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ": " + lease.getProperty().getFullAddress());
+				else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ": " + lease.getProperty().getFullAddress());
+			}
 		}
 
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = new HashMap<String, ArrayList<String>>();

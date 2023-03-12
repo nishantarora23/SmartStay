@@ -47,8 +47,9 @@ public class RentalView {
 		System.out.println("\t6. Display rented units");
 		System.out.println("\t7. Display vacant units");
 		System.out.println("\t8. Display all leases");
-		System.out.println("\t9. Rent Payment Summary");
-		System.out.println("\t10. Notify potential tenants");
+		System.out.println("\t9. Make Rent Payment");
+		System.out.println("\t10. Rent Payment Summary");
+		System.out.println("\t11. Notify potential tenants");
 		System.out.println("\t0. Exit");
 	}
 
@@ -92,9 +93,12 @@ public class RentalView {
 				displayAllLeases();
 				break;
 			case 9:
-				displayRentSummary();
+				payRent(scanner);
 				break;
 			case 10:
+				displayRentSummary();
+				break;
+			case 11:
 				notification();
 				break;
 			case 0:
@@ -168,7 +172,7 @@ public class RentalView {
 				.withNumBedrooms(numBedrooms).withNumBathrooms(numBathrooms).withSquareFootage(squareFootage)
 				.buildApartment();
 		controller.addProperty(apartment);
-		System.out.println("Apartment added successfully to Smart Stay properties.\n");
+		System.out.println("Apartment added successfully to the list of properties.\n");
 	}
 
 	/**
@@ -206,7 +210,7 @@ public class RentalView {
 				.withStreetNumber(streetNumber).withNumBedrooms(numBedrooms).withNumBathrooms(numBathrooms)
 				.withSquareFootage(squareFootage).buildCondo();
 		controller.addProperty(condo);
-		System.out.println("Condo added successfully to Smart Stay properties.\n");
+		System.out.println("Condo added successfully to the list of properties.\n");
 	}
 
 	/**
@@ -243,7 +247,7 @@ public class RentalView {
 				.withNumBedrooms(numBedrooms).withNumBathrooms(numBathrooms).withSquareFootage(squareFootage)
 				.buildHouse();
 		controller.addProperty(house);
-		System.out.println("House added successfully to Smart Stay properties.\n");
+		System.out.println("House added successfully to the list of properties.\n");
 	}
 
 	/**
@@ -444,7 +448,7 @@ public class RentalView {
 		if(leases.isEmpty()) {
 			System.out.println("No active lease records to display.");
 		}else {
-			System.out.println("Here are all the leases give by Smart Stay:");
+			System.out.println("List of leases:");
 			for (Lease lease : leases) {
 				System.out.println("\t" + lease);
 			}
@@ -457,7 +461,7 @@ public class RentalView {
 	public void notification() {
 		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
 		if (propertyAndInterestedTenants.isEmpty()) {
-			System.out.println("No potential tenant was notified.\n");
+			System.out.println("No potential tenant records found.\n");
 		} else {
 			for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
 				String propertyAddress = entry.getKey();
@@ -478,7 +482,7 @@ public class RentalView {
 	public void displayRentSummary() {
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = controller.displayRentPaymentSummary();
 		if (paidOrNotPaidAndTenants.isEmpty()) {
-			System.out.println("No tenant records found.\n");
+			System.out.println("No tenant records found associated with a lease.\n");
 		} 
 		else {
 			ArrayList<String> paidTenants = paidOrNotPaidAndTenants.get("PAID");
@@ -501,6 +505,24 @@ public class RentalView {
 				}
 				System.out.println();
 			}
+		}
+	}
+	
+	/**
+	 * Makes rent payment
+	 */
+	public void payRent(Scanner scanner) {
+		ArrayList<Lease> leases = controller.getAllLeases();
+		if(leases.isEmpty()) 
+			System.out.println("No lease records found for which payment can be made.");
+		else {
+			System.out.print("Enter the lease ID for which the payment has to be made: ");
+			int leaseID = scanner.nextInt();
+			scanner.nextLine();
+			System.out.println("Enter the amount: ");
+			double amount = scanner.nextDouble();
+			scanner.nextLine();
+			controller.makeRentPayment(leaseID, amount);
 		}
 	}
 }
