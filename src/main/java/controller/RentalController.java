@@ -188,10 +188,9 @@ public class RentalController {
 	}
 
 	/**
-	 * This method returns whether rent payment was successful or not
+	 * This method allows user to pay their rent
 	 * @param leaseID
 	 * @param amountPaid
-	 * @return true or false
 	 */
 	public void makeRentPayment(int leaseID, double amountPaid) {
 		boolean leaseFound = false;
