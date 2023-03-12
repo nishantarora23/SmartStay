@@ -442,7 +442,7 @@ public class RentalView {
 	public void displayAllLeases() {
 		ArrayList<Lease> leases = controller.getAllLeases();
 		if(leases.isEmpty()) {
-			System.out.println("No active lease record to display.");
+			System.out.println("No active lease records to display.");
 		}else {
 			System.out.println("Here are all the leases give by Smart Stay:");
 			for (Lease lease : leases) {
