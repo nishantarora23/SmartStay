@@ -98,7 +98,7 @@ public class RentalView {
 				notification();
 				break;
 			case 0:
-				System.out.println("The application is now closed!");
+				System.out.println("Thank you for using SmartStay!");
 				break;
 			default:
 				System.out.println("Invalid choice.\n");
@@ -354,7 +354,7 @@ public class RentalView {
 				}
 				else {
 					property.addInterestedTenants(tenant);
-					System.out.println("\nSorry this unit is rented out for the specified time line. \nThe tenant will be notified once the unit is available.\n");
+					System.out.println("\nThe selected unit is currently rented out. \nA notification will be sent once the unit is available.\n");
 					return;
 				}
 			}
@@ -368,7 +368,7 @@ public class RentalView {
 					+ property.getFullAddress() + ".\n");
 		} else {
 			property.addInterestedTenants(tenant);
-			System.out.println("Sorry this unit is rented out. The tenants will be notified once the unit is available.\n");
+			System.out.println("The selected unit is currently rented out. \nA notification will be sent once the unit is available.\n");
 		}
 	}
 
@@ -378,7 +378,7 @@ public class RentalView {
 	 */
 	public void displayProperties() {
 		ArrayList<Property> properties = controller.getAllProperties();
-		System.out.println("Here are all the Smart Stay properties:");
+		System.out.println("List of Smart Stay properties: ");
 		for (Property property : properties) {
 			System.out.println("\t" + property);
 		}
@@ -391,7 +391,7 @@ public class RentalView {
 	 */
 	public void displayTenants() {
 		ArrayList<Tenant> tenants = controller.getAllTenants();
-		System.out.println("Here are the tenants registered with Smart Stay:");
+		System.out.println("List of registered tenants: ");
 		for (Tenant tenant : tenants) {
 			System.out.println("\t" + tenant);
 		}
@@ -405,9 +405,9 @@ public class RentalView {
 	private void displayRentedUnits() {
 		ArrayList<Lease> leases = controller.getAllLeases();
 		if(leases.isEmpty()) {
-			System.out.println("No rented units to be displayed");
+			System.out.println("No rented unit records to display");
 		}else {
-			System.out.println("Here are the rented units of Smart Stay:");
+			System.out.println("List of rented units: ");
 			int i = 1;
 			for (Lease lease : leases) {
 				if (!lease.isExpired()) {
@@ -425,9 +425,9 @@ public class RentalView {
 	public void displayVacantUnits() {
 		ArrayList<Property> properties = controller.getVacantUnits();
 		if(properties.isEmpty()) {
-			System.out.println("No vacant units to be displayed");
+			System.out.println("No vacant unit records to display.");
 		}else {
-			System.out.println("Here are all the vacant properties of Smart Stay:");
+			System.out.println("List of vacant properties: ");
 			for (Property property : properties) {
 				System.out.println("\t" + property);
 			}
@@ -442,7 +442,7 @@ public class RentalView {
 	public void displayAllLeases() {
 		ArrayList<Lease> leases = controller.getAllLeases();
 		if(leases.isEmpty()) {
-			System.out.println("No active lease to be displayed");
+			System.out.println("No active lease record to display.");
 		}else {
 			System.out.println("Here are all the leases give by Smart Stay:");
 			for (Lease lease : leases) {
@@ -457,7 +457,7 @@ public class RentalView {
 	public void notification() {
 		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
 		if (propertyAndInterestedTenants.isEmpty()) {
-			System.out.println("No interested tenants were notified.\n");
+			System.out.println("No potential tenant was notified.\n");
 		} else {
 			for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
 				String propertyAddress = entry.getKey();
@@ -478,24 +478,24 @@ public class RentalView {
 	public void displayRentSummary() {
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = controller.displayRentPaymentSummary();
 		if (paidOrNotPaidAndTenants.isEmpty()) {
-			System.out.println("No tenants found.\n");
+			System.out.println("No tenant records found.\n");
 		} 
 		else {
 			ArrayList<String> paidTenants = paidOrNotPaidAndTenants.get("PAID");
 			ArrayList<String> unpaidTenants = paidOrNotPaidAndTenants.get("UNPAID");
 			if(paidTenants == null)
-				System.out.println("No tenants found who have paid the rent.");
+				System.out.println("No tenant records found for paid rent.");
 			else {
-				System.out.println("Tenants who paid the rent are: ");
+				System.out.println("Tenants with paid rent: ");
 				for(String tenant : paidTenants) {
 					System.out.println("\t" + tenant);
 				}
 				System.out.println();
 			}
 			if(unpaidTenants == null)
-				System.out.println("No tenants found who have not paid the rent.");
+				System.out.println("No tenant records found for un-paid rent.");
 			else {
-				System.out.println("Tenants who did not pay the rent are: ");
+				System.out.println("Tenants with unpaid rent: ");
 				for(String tenant : unpaidTenants) {
 					System.out.println("\t" + tenant);
 				}
