@@ -18,23 +18,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static org.mockito.Mockito.*;
 
 import model.Apartment;
-import model.Condo;
 import model.DatabaseUtility;
-import model.House;
 import model.Lease;
-import model.Payment;
 import model.Property;
 import model.Tenant;
 
 @RunWith(MockitoJUnitRunner.class)
 class RentalControllerTest {
-
-	// private RentalController controller = new RentalController();
-	// private Tenant tenant1 = new Tenant("Rohit", "Singh",
-	// "rohit.singh@gmail.com", "555-8861-234");
-	// private Tenant tenant2 = new Tenant("Ram", "Patel", "ram.patel@gmail.com",
-	// "555-8871-678");
-	//
 
 	@Mock
 	private Property mockedProperty = mock(Property.class);
@@ -45,12 +35,12 @@ class RentalControllerTest {
 
 	private RentalController rentalController;
 
-	private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+	private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 	@BeforeEach
 	public void setUp()
 			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		System.setOut(new PrintStream(outputStreamCaptor));
+		System.setOut(new PrintStream(outputStream));
 		Field instance = DatabaseUtility.class.getDeclaredField("instance");
 		instance.setAccessible(true);
 		instance.set(null, null);
@@ -59,32 +49,45 @@ class RentalControllerTest {
 
 	@Test
 	public void testMakeRentPaymentSuccessful() {
+		
+		//mock the behaviour of a tenant and an apartment to create a lease for which the rent has to be paid
 		Tenant mockTenant = mock(Tenant.class);
 		Apartment mockApartment = mock(Apartment.class);
 		Lease lease = new Lease(mockTenant, mockApartment, LocalDate.parse("2023-04-01"), LocalDate.parse("2024-03-31"),
 				12000);
 		assertEquals(0, lease.getAllPayments().size());
 		rentalController.addLease(lease);
+		
+		// calling test method
 		rentalController.makeRentPayment(1, 1000);
+		
+		//verify that rent was paid successfully
 		assertEquals(1, lease.getAllPayments().size());
 		assertEquals(1000.0, lease.getAllPayments().get(0).getAmountPaid());
-		assertEquals("Your rent payment is successful!", outputStreamCaptor.toString().trim());
+		assertEquals("Your rent payment is successful!", outputStream.toString().trim());
 	}
 
 	@Test
 	public void testMakeRentPaymentNoLeaseFound() {
+		//mock the behaviour of a tenant and an apartment to create a lease for which the rent has to be paid
 		Tenant mockTenant = mock(Tenant.class);
 		Apartment mockApartment = mock(Apartment.class);
 		Lease lease = new Lease(mockTenant, mockApartment, LocalDate.parse("2023-02-01"), LocalDate.parse("2023-04-01"),
 				12000);
 		assertEquals(0, lease.getAllPayments().size());
 		rentalController.addLease(lease);
+		
+		// calling test method
 		rentalController.makeRentPayment(3, 1000);
-		assertEquals("No active lease found.", outputStreamCaptor.toString().trim());
+		
+		//verify rent cannot be paid for a lease that does not exist
+		assertEquals("No active lease found.", outputStream.toString().trim());
 	}
 
 	@Test
 	public void testDisplayRentSummary() {
+		
+		//mock the behaviour of a tenant and an apartment to create a lease for which rent has been paid
 		Tenant paidMockTenant = mock(Tenant.class);
 		when(paidMockTenant.getFirstName()).thenReturn("John");
 		when(paidMockTenant.getLastName()).thenReturn("Doe");
@@ -95,6 +98,7 @@ class RentalControllerTest {
 				LocalDate.parse("2024-03-31"), 12000);
 		paidLease.setRentDue(0);
 
+		//mock a tenant and an apartment to create a lease for which rent has been paid
 		Tenant unpaidMockTenant = mock(Tenant.class);
 		when(unpaidMockTenant.getFirstName()).thenReturn("Jenny");
 		when(unpaidMockTenant.getLastName()).thenReturn("Doe");
@@ -106,8 +110,11 @@ class RentalControllerTest {
 
 		rentalController.addLease(paidLease);
 		rentalController.addLease(unpaidLease);
-
+		
+		//calling test method
 		HashMap<String, ArrayList<String>> map = rentalController.displayRentPaymentSummary();
+		
+		//verify that tenants who paid the rent and who did not pay the rent are listed
 		assertEquals(2, map.size());
 		assertEquals("John Doe: Apartment 123, ABC Street, Montreal, QC, Canada, H3G 1M8", map.get("PAID").get(0));
 		assertEquals("Jenny Doe: Apartment 456, XYZ Street, Montreal, QC, Canada, H3G 1M8", map.get("UNPAID").get(0));
@@ -115,6 +122,7 @@ class RentalControllerTest {
 
 	@Test
 	public void testNotifyInterestedTenants() {
+		//mock the behaviour of an existing tenant and an apartment to create a lease for a property having an interested tenant
 		Tenant mockExistingTenant = mock(Tenant.class);
 		Tenant mockInterestedTenant = mock(Tenant.class);
 		when(mockInterestedTenant.getFirstName()).thenReturn("Jenny");
@@ -128,7 +136,11 @@ class RentalControllerTest {
 				LocalDate.parse("2023-02-28"), 12000);
 
 		rentalController.addLease(lease);
+		
+		//calling test method
 		HashMap<String, ArrayList<String>> map = rentalController.notifyInterestedTenants();
+		
+		//verify interested tenants are notified
 		assertEquals(1, map.size());
 		assertEquals("Jenny Doe", map.get(lease.getProperty().getFullAddress()).get(0));
 	}
