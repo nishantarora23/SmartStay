@@ -11,7 +11,7 @@ public class Tenant {
 	private String lastName;
 	private String email;
 	private String phoneNumber;
-	
+
 	/**
 	 * A constructor to create a tenant with the following details:
 	 * 
@@ -28,9 +28,9 @@ public class Tenant {
 		this.phoneNumber = phoneNumber;
 	}
 
-	
 	/**
 	 * Returns the id of the tenant
+	 * 
 	 * @return tenantID
 	 */
 	public int getTenantID() {
@@ -39,6 +39,7 @@ public class Tenant {
 
 	/**
 	 * Returns the first name of the tenant
+	 * 
 	 * @return firstName
 	 */
 	public String getFirstName() {
@@ -47,6 +48,7 @@ public class Tenant {
 
 	/**
 	 * Returns the last name of the tenant
+	 * 
 	 * @return lastName
 	 */
 	public String getLastName() {
@@ -55,6 +57,7 @@ public class Tenant {
 
 	/**
 	 * Returns the email of the tenant
+	 * 
 	 * @return email
 	 */
 	public String getEmail() {
@@ -63,6 +66,7 @@ public class Tenant {
 
 	/**
 	 * Returns the phone number of the tenant
+	 * 
 	 * @return phoneNumber
 	 */
 	public String getPhoneNumber() {
@@ -74,9 +78,8 @@ public class Tenant {
 	 */
 	@Override
 	public String toString() {
-		return this.getTenantID() + ". " + this.getFirstName() + " " + this.getLastName() + "\n\tEmail: " + this.getEmail() + "\n\tPhone Number: " 
-				+ this.getPhoneNumber();
+		return this.getTenantID() + ". " + this.getFirstName() + " " + this.getLastName() + "\n\tEmail: "
+				+ this.getEmail() + "\n\tPhone Number: " + this.getPhoneNumber();
 	}
-	
-	
+
 }
