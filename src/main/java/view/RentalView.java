@@ -3,6 +3,7 @@ package view;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -71,46 +72,33 @@ public class RentalView extends Application {
 		bannerImageView.setPreserveRatio(true);
 		Label label = new Label("What would you like to do?");
 		label.setFont(Font.font("System", FontWeight.BOLD, 14));
-		Button button1 = new Button("Add a property");
-		button1.setPrefWidth(200);
-		Button button2 = new Button("Add a tenant");
-		button2.setPrefWidth(200);
-		Button button3 = new Button("Rent a unit");
-		button3.setPrefWidth(200);
-		Button button4 = new Button("Display properties");
-		button4.setPrefWidth(200);
-		Button button5 = new Button("Display tenants");
-		button5.setPrefWidth(200);
-		Button button6 = new Button("Display rented units");
-		button6.setPrefWidth(200);
-		Button button7 = new Button("Display vacant units");
-		button7.setPrefWidth(200);
-		Button button8 = new Button("Display all leases");
-		button8.setPrefWidth(200);
-		Button button9 = new Button("Make Rent Payment");
-		button9.setPrefWidth(200);
-		Button button10 = new Button("Rent Payment Summary");
-		button10.setPrefWidth(200);
-		Button button11 = new Button("Notify potential tenants");
-		button11.setPrefWidth(200);
-		Button button0 = new Button("Exit");
-		button0.setPrefWidth(200);
+		String[] buttonLabels = { "Add a property", "Add a tenant", "Rent a unit", "Display properties",
+				"Display tenants", "Display rented units", "Display vacant units", "Display all leases",
+				"Make Rent Payment", "Rent Payment Summary", "Notify potential tenants", "Exit" };
 
-		button1.setOnAction(e -> addProperty());
-		// button2.setOnAction(e -> addTenant());
-		// button3.setOnAction(e -> rentUnit());
-		// button4.setOnAction(e -> displayProperties());
-		// button5.setOnAction(e -> displayTenants());
-		// button6.setOnAction(e -> displayRentedUnits());
-		// button7.setOnAction(e -> displayVacantUnits());
-		// button8.setOnAction(e -> displayAllLeases());
-		// button9.setOnAction(e -> payRent());
-		// button10.setOnAction(e -> displayRentSummary());
-		// button11.setOnAction(e -> notification());
-		button0.setOnAction(e -> stage.close());
+		List<Button> buttons = new ArrayList<>();
+		for (String labels : buttonLabels) {
+			Button button = new Button(labels);
+			button.setPrefWidth(200);
+			buttons.add(button);
+		}
 
-		VBox vbox = new VBox(10, bannerImageView, label, button1, button2, button3, button4, button5, button6, button7,
-				button8, button9, button10, button11, button0);
+		buttons.get(0).setOnAction(e -> addProperty());
+		// buttons.get(1).setOnAction(e -> addTenant());
+		// buttons.get(2).setOnAction(e -> rentUnit());
+		// buttons.get(3).setOnAction(e -> displayProperties());
+		// buttons.get(4).setOnAction(e -> displayTenants());
+		// buttons.get(5).setOnAction(e -> displayRentedUnits());
+		// buttons.get(6).setOnAction(e -> displayVacantUnits());
+		// buttons.get(7).setOnAction(e -> displayAllLeases());
+		// buttons.get(8).setOnAction(e -> payRent());
+		// buttons.get(9).setOnAction(e -> displayRentSummary());
+		// buttons.get(10).setOnAction(e -> notification());
+		buttons.get(11).setOnAction(e -> stage.close());
+
+		VBox vbox = new VBox(10, bannerImageView, label, buttons.get(0), buttons.get(1), buttons.get(2), buttons.get(3),
+				buttons.get(4), buttons.get(5), buttons.get(6), buttons.get(7), buttons.get(8), buttons.get(9),
+				buttons.get(10), buttons.get(11));
 		vbox.setPadding(new Insets(10));
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setStyle("-fx-background-color: #FFFFFF;");
@@ -302,10 +290,10 @@ public class RentalView extends Application {
 		Scene scene = new Scene(vbox, 500, 700);
 		stage.setScene(scene);
 	}
-	
+
 	/**
-	 * Prompts the user to enter details about a condo in the text fields and
-	 * submit button to add condo to the property.
+	 * Prompts the user to enter details about a condo in the text fields and submit
+	 * button to add condo to the property.
 	 */
 	public void addCondo() {
 		stage.setTitle("Add Condo");
@@ -426,10 +414,10 @@ public class RentalView extends Application {
 		Scene scene = new Scene(vbox, 500, 700);
 		stage.setScene(scene);
 	}
-	
+
 	/**
-	 * Prompts the user to enter details about a house in the text fields and
-	 * submit button to add house to the property.
+	 * Prompts the user to enter details about a house in the text fields and submit
+	 * button to add house to the property.
 	 */
 	public void addHouse() {
 		stage.setTitle("Add House");
