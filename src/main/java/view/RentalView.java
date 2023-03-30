@@ -1,11 +1,12 @@
 package view;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.Optional;
 
 import controller.RentalController;
 import model.Apartment;
@@ -21,9 +22,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -34,6 +39,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 //import java.util.Scanner;
 
@@ -49,14 +55,10 @@ public class RentalView extends Application {
 	private Stage stage;
 
 	public RentalView() {
-		// TODO Auto-generated constructor stub
+		this.controller = new RentalController();
 	}
 
-	public RentalView(RentalController controller) {
-		this.controller = controller;
-	}
-
-	Image bannerImage = new Image("file:./resources/images/logo.jpg");
+	Image bannerImage = new Image("https://i.ibb.co/bbWLfbR/logo.jpg");
 	ImageView bannerImageView = new ImageView(bannerImage);
 
 	/**
@@ -85,7 +87,7 @@ public class RentalView extends Application {
 
 		buttons.get(0).setOnAction(e -> addProperty());
 		// buttons.get(1).setOnAction(e -> addTenant());
-		// buttons.get(2).setOnAction(e -> rentUnit());
+		buttons.get(2).setOnAction(e -> rentUnit());
 		// buttons.get(3).setOnAction(e -> displayProperties());
 		// buttons.get(4).setOnAction(e -> displayTenants());
 		// buttons.get(5).setOnAction(e -> displayRentedUnits());
@@ -237,11 +239,17 @@ public class RentalView extends Application {
 						.withNumBathrooms(numBathrooms).withSquareFootage(squareFootage).buildApartment();
 				controller.addProperty(apartment);
 
-				Label messageLabel = new Label("Apartment added successfully to the list of properties.");
-				VBox vbox = new VBox(10);
-				vbox.getChildren().addAll(messageLabel, new Separator());
-				Scene scene = new Scene(vbox, 500, 650);
-				stage.setScene(scene);
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Confirmation");
+				alert.setHeaderText("Apartment details have been successfully added.");
+
+				ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+				alert.getButtonTypes().setAll(okButton);
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.isPresent() && result.get() == okButton) {
+					addProperty();
+				}
 
 			} catch (NumberFormatException ex) {
 				Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -360,11 +368,17 @@ public class RentalView extends Application {
 						.withNumBathrooms(numBathrooms).withSquareFootage(squareFootage).buildCondo();
 				controller.addProperty(condo);
 
-				Label messageLabel = new Label("Condo added successfully to the list of properties.");
-				VBox vbox = new VBox(10);
-				vbox.getChildren().addAll(messageLabel, new Separator());
-				Scene scene = new Scene(vbox, 500, 650);
-				stage.setScene(scene);
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Confirmation");
+				alert.setHeaderText("Condo details have been successfully added.");
+
+				ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+				alert.getButtonTypes().setAll(okButton);
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.isPresent() && result.get() == okButton) {
+					addProperty();
+				}
 
 			} catch (NumberFormatException ex) {
 				Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -485,11 +499,17 @@ public class RentalView extends Application {
 						.withNumBathrooms(numBathrooms).withSquareFootage(squareFootage).buildHouse();
 				controller.addProperty(house);
 
-				Label messageLabel = new Label("House added successfully to the list of properties.");
-				VBox vbox = new VBox(10);
-				vbox.getChildren().addAll(messageLabel, new Separator());
-				Scene scene = new Scene(vbox, 500, 650);
-				stage.setScene(scene);
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Confirmation");
+				alert.setHeaderText("House details have been successfully added.");
+
+				ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+				alert.getButtonTypes().setAll(okButton);
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.isPresent() && result.get() == okButton) {
+					addProperty();
+				}
 
 			} catch (NumberFormatException ex) {
 				Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -515,7 +535,6 @@ public class RentalView extends Application {
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
 		gridPane.setVgap(10);
-
 		gridPane.addRow(1, houseNumberLabel, houseNumberField);
 		gridPane.addRow(2, streetNumberLabel, streetNumberField);
 		gridPane.addRow(3, streetNameLabel, streetNameField);
@@ -538,8 +557,96 @@ public class RentalView extends Application {
 		Scene scene = new Scene(vbox, 500, 700);
 		stage.setScene(scene);
 	}
-}
 
+	public void rentUnit() {
+		stage.setTitle("Unit Rental");
+		bannerImageView.setFitWidth(400);
+		bannerImageView.setPreserveRatio(true);
+
+		Label label = new Label("RENT A UNIT\n");
+		label.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+		Label tenantLabel = new Label("Tenant ID:");
+		TextField tenantTextField = new TextField();
+
+		Label propertyLabel = new Label("Select a property:");
+		ChoiceBox<String> propertyChoiceBox = new ChoiceBox<>();
+		ArrayList<Property> properties = controller.getAllProperties();
+		for (int i = 0; i < properties.size(); i++) {
+			Property property = properties.get(i);
+			propertyChoiceBox.getItems().add(property.toString());
+		}
+
+		Label startDateLabel = new Label("Lease start date:");
+		DatePicker startDatePicker = new DatePicker();
+		startDatePicker.setConverter(new StringConverter<LocalDate>() {
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+			@Override
+			public String toString(LocalDate date) {
+				return date != null ? dateFormatter.format(date) : "";
+			}
+
+			@Override
+			public LocalDate fromString(String string) {
+				return string != null && !string.isEmpty() ? LocalDate.parse(string, dateFormatter) : null;
+			}
+		});
+
+		Label endDateLabel = new Label("Lease end date:");
+		DatePicker endDatePicker = new DatePicker();
+		endDatePicker.setConverter(new StringConverter<LocalDate>() {
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+			@Override
+			public String toString(LocalDate date) {
+				return date != null ? dateFormatter.format(date) : "";
+			}
+
+			@Override
+			public LocalDate fromString(String string) {
+				return string != null && !string.isEmpty() ? LocalDate.parse(string, dateFormatter) : null;
+			}
+		});
+
+		Label rentAmountLabel = new Label("Rental amount (CAD):");
+		TextField rentAmountTextField = new TextField();
+
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Error");
+		alert.setHeaderText(null);
+
+		Button submitButton = new Button("Submit");
+		submitButton.setPrefWidth(150);
+		Button button = new Button("Back to Main Menu");
+		button.setOnAction(e -> start(stage));
+		button.setPrefWidth(150);
+		HBox hbox = new HBox(10, submitButton, button);
+		hbox.setAlignment(Pos.CENTER);
+		hbox.setPadding(new Insets(10));
+
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		gridPane.addRow(1, tenantLabel, tenantTextField);
+		gridPane.addRow(2, propertyLabel, propertyChoiceBox);
+		gridPane.addRow(3, startDateLabel, startDatePicker);
+		gridPane.addRow(4, endDateLabel, endDatePicker);
+		gridPane.addRow(5, rentAmountLabel, rentAmountTextField);
+		gridPane.add(hbox, 0, 7, 2, 1);
+		gridPane.setAlignment(Pos.CENTER);
+		VBox vbox = new VBox();
+		vbox.getChildren().addAll(bannerImageView, label, gridPane);
+
+		vbox.setPadding(new Insets(10));
+		vbox.setAlignment(Pos.CENTER);
+		vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+		Scene scene = new Scene(vbox, 500, 700);
+		stage.setScene(scene);
+
+	}
+}
 //	/**
 //	 * Prompts the user to input details of a new Tenant and adds it to the
 //	 * Controller's list of tenants.
@@ -573,124 +680,7 @@ public class RentalView extends Application {
 //	 * 
 //	 * @param scanner a Scanner object used to receive input from the user
 //	 */
-//	public void rentUnit(Scanner scanner) {
-//
-//		// drop down for tenant selection
-//		System.out.print("Enter the tenant ID: ");
-//		int tenantID = scanner.nextInt();
-//		scanner.nextLine();
-//
-//		Tenant tenant = controller.getTenant(tenantID);
-//		if (tenant == null) {
-//			System.out.println("Invalid tenant ID.\n");
-//			return;
-//		}
-//
-//		ArrayList<Property> properties = controller.getAllProperties();
-//		System.out.println("\nSelect a property to rent:");
-//		for (int i = 0; i < properties.size(); i++) {
-//			Property property = properties.get(i);
-//			System.out.println("\t" + property);
-//		}
-//
-//		System.out.print("\nEnter your choice: ");
-//		int propertyChoice = scanner.nextInt();
-//		scanner.nextLine();
-//
-//		if (propertyChoice < 1 || propertyChoice > properties.size()) {
-//			System.out.println("Invalid property selection.\n");
-//			return;
-//		}
-//
-//		Property property = properties.get(propertyChoice - 1);
-//
-//		System.out.print("Enter the lease start date (yyyy-MM-dd): ");
-//		String startDateStr = scanner.nextLine();
-//		LocalDate startDate = LocalDate.parse(startDateStr);
-//
-//		System.out.print("Enter the lease end date (yyyy-MM-dd): ");
-//		String endDateStr = scanner.nextLine();
-//		LocalDate endDate = LocalDate.parse(endDateStr);
-//
-//		ArrayList<Property> vacantProperties = controller.getVacantUnits();
-//
-//		boolean isVacant = false;
-//		for (Property vacantProperty : vacantProperties) {
-//			if (vacantProperty.getPropertyId() == property.getPropertyId()) {
-//				isVacant = true;
-//				break;
-//			}
-//		}
-//
-//		Lease coincidingLease = controller.getLeaseByPropertyAndDates(property, startDate, endDate);
-//
-//		if (isVacant || coincidingLease != null) {
-//
-//			// Check if there is an existing lease during the specified dates
-//			if (coincidingLease != null) {
-//				// Ask user if they want to change the lease data or exit
-//				System.out.println("\nThere is an existing lease for this property during the specified dates."
-//						+ "\nDates of coinciding lease : " + coincidingLease.getStartDate() + " to "
-//						+ coincidingLease.getEndDate());
-//				System.out.print("\nDo you want to change the lease data? (Y/N): ");
-//
-//				String response = scanner.nextLine();
-//				if (response.equalsIgnoreCase("Y")) {
-//
-//					System.out.print("Enter the new start date (yyyy-MM-dd): ");
-//					startDateStr = scanner.nextLine();
-//					startDate = LocalDate.parse(startDateStr);
-//
-//					System.out.print("Enter the new end date (yyyy-MM-dd): ");
-//					endDateStr = scanner.nextLine();
-//					endDate = LocalDate.parse(endDateStr);
-//				} else {
-//					property.addInterestedTenants(tenant);
-//					System.out.println(
-//							"\nThe selected unit is currently rented out. \nA notification will be sent once the unit is available.\n");
-//					return;
-//				}
-//			}
-//			// Allow user to enter new lease data
-//			System.out.print("Enter the rent amount: ");
-//			double rentAmount = scanner.nextDouble();
-//			scanner.nextLine();
-//			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
-//			controller.addLease(lease);
-//			System.out.println("The tenant " + tenant.getFirstName() + " " + tenant.getLastName()
-//					+ " has been successfully rented the unit at " + property.getFullAddress() + ".\n");
-//		} else {
-//			property.addInterestedTenants(tenant);
-//			System.out.println(
-//					"The selected unit is currently rented out. \nA notification will be sent once the unit is available.\n");
-//		}
-//	}
-//
-//	/**
-//	 * Displays all properties by retrieving the list of properties from the
-//	 * controller and printing them to the console.
-//	 */
-//	public void displayProperties() {
-//		ArrayList<Property> properties = controller.getAllProperties();
-//		System.out.println("List of Smart Stay properties: ");
-//		for (Property property : properties) {
-//			System.out.println("\t" + property);
-//		}
-//		System.out.println();
-//	}
-//
-//	/**
-//	 * Displays all tenants by retrieving the list of tenants from the controller
-//	 * and printing them to the console.
-//	 */
-//	public void displayTenants() {
-//		ArrayList<Tenant> tenants = controller.getAllTenants();
-//		System.out.println("List of registered tenants: ");
-//		for (Tenant tenant : tenants) {
-//			System.out.println("\t" + tenant);
-//		}
-//		System.out.println();
-//	}
+
 //
 //	/**
 //	 * Displays all rented units by retrieving the list of leases from the
