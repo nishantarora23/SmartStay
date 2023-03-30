@@ -93,7 +93,7 @@ public class RentalView extends Application {
 		// buttons.get(5).setOnAction(e -> displayRentedUnits());
 		// buttons.get(6).setOnAction(e -> displayVacantUnits());
 		// buttons.get(7).setOnAction(e -> displayAllLeases());
-		// buttons.get(8).setOnAction(e -> payRent());
+		buttons.get(8).setOnAction(e -> payRent());
 		// buttons.get(9).setOnAction(e -> displayRentSummary());
 		// buttons.get(10).setOnAction(e -> notification());
 		buttons.get(11).setOnAction(e -> stage.close());
@@ -734,6 +734,120 @@ public class RentalView extends Application {
 		stage.setScene(scene);
 
 	}
+	
+	/**
+	 * Prompts the user to enter details for rent payment and pay the rent.
+	 */
+	public void payRent() {
+		
+		ArrayList<Lease> leases = controller.getAllLeases();
+		if(leases.isEmpty()) {
+			
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No lease records found for which payment can be made.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+		}
+		
+		else {
+			stage.setTitle("Pay Rent");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+	
+			Label label = new Label("\nRENT PAYMENT");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+	
+			Label leaseIDLabel = new Label("Lease ID:");
+			TextField leaseIDField = new TextField();
+	
+			Label amountLabel = new Label("Amount:");
+			TextField amountField = new TextField();
+	
+			Button submitButton = new Button("Submit");
+			submitButton.setPrefWidth(150);
+			submitButton.setOnAction(e -> {
+				try {				
+					if (leaseIDField.getText().isEmpty() || amountField.getText().isEmpty()) {
+						throw new IllegalArgumentException("Please fill in all required fields.");
+					}
+					
+					int leaseID = Integer.parseInt(leaseIDField.getText());
+					double amount = Double.parseDouble(amountField.getText());
+					
+					boolean rentPaid = controller.makeRentPayment(leaseID, amount);
+					
+					if(rentPaid) {
+						Alert alert = new Alert(AlertType.CONFIRMATION);
+						alert.setTitle("Confirmation");
+						alert.setHeaderText("Rent payment is successful!");
+	
+						ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+						alert.getButtonTypes().setAll(okButton);
+	
+						Optional<ButtonType> result = alert.showAndWait();
+						if (result.isPresent() && result.get() == okButton) {
+							start(stage);
+						}
+					}
+					else {
+						Alert alert = new Alert(AlertType.ERROR);
+						alert.setTitle("Error");
+						alert.setHeaderText("No active lease found.");
+	
+						ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+						alert.getButtonTypes().setAll(okButton);
+	
+						Optional<ButtonType> result = alert.showAndWait();
+						if (result.isPresent() && result.get() == okButton) {
+							start(stage);
+						}
+					}
+					
+				} catch (NumberFormatException ex) {
+					Alert alert = new Alert(Alert.AlertType.ERROR);
+					alert.setTitle("Error");
+					alert.setHeaderText(null);
+					alert.setContentText("Please fill in all required fields with valid inputs.");
+					alert.showAndWait();
+				} catch (IllegalArgumentException ex) {
+					Alert alert = new Alert(Alert.AlertType.ERROR);
+					alert.setTitle("Error");
+					alert.setHeaderText(null);
+					alert.setContentText(ex.getMessage());
+					alert.showAndWait();
+				}
+			});
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			HBox hbox = new HBox(10, submitButton, button);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+			GridPane gridPane = new GridPane();
+			gridPane.setHgap(10);
+			gridPane.setVgap(10);
+			gridPane.addRow(1, leaseIDLabel, leaseIDField);
+			gridPane.addRow(2, amountLabel, amountField);
+			gridPane.add(hbox, 0, 5, 2, 1);
+			gridPane.setAlignment(Pos.CENTER);
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, gridPane);
+	
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+	
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	}
 }
 
 //	/**
@@ -816,54 +930,5 @@ public class RentalView extends Application {
 //				}
 //				System.out.println();
 //			}
-//		}
-//	}
-//
-//	/**
-//	 * Displays the summary of all the paid and unpaid rents.
-//	 */
-//	public void displayRentSummary() {
-//		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = controller.displayRentPaymentSummary();
-//		if (paidOrNotPaidAndTenants.isEmpty()) {
-//			System.out.println("No tenant records found associated with a lease.\n");
-//		} else {
-//			ArrayList<String> paidTenants = paidOrNotPaidAndTenants.get("PAID");
-//			ArrayList<String> unpaidTenants = paidOrNotPaidAndTenants.get("UNPAID");
-//			if (paidTenants == null)
-//				System.out.println("No tenant records found for paid rent.");
-//			else {
-//				System.out.println("Tenants with paid rent: ");
-//				for (String tenant : paidTenants) {
-//					System.out.println("\t" + tenant);
-//				}
-//				System.out.println();
-//			}
-//			if (unpaidTenants == null)
-//				System.out.println("No tenant records found for un-paid rent.");
-//			else {
-//				System.out.println("Tenants with unpaid rent: ");
-//				for (String tenant : unpaidTenants) {
-//					System.out.println("\t" + tenant);
-//				}
-//				System.out.println();
-//			}
-//		}
-//	}
-//
-//	/**
-//	 * Makes rent payment
-//	 */
-//	public void payRent(Scanner scanner) {
-//		ArrayList<Lease> leases = controller.getAllLeases();
-//		if (leases.isEmpty())
-//			System.out.println("No lease records found for which payment can be made.");
-//		else {
-//			System.out.print("Enter the lease ID for which the payment has to be made: ");
-//			int leaseID = scanner.nextInt();
-//			scanner.nextLine();
-//			System.out.println("Enter the amount: ");
-//			double amount = scanner.nextDouble();
-//			scanner.nextLine();
-//			controller.makeRentPayment(leaseID, amount);
 //		}
 //	}

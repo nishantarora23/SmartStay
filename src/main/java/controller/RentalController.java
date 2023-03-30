@@ -251,7 +251,7 @@ public class RentalController {
 	 * @param leaseID
 	 * @param amountPaid
 	 */
-	public void makeRentPayment(int leaseID, double amountPaid) {
+	public boolean makeRentPayment(int leaseID, double amountPaid) {
 		boolean leaseFound = false;
 		for (Lease lease : leases) {
 			if (lease.getLeaseID() == leaseID && !lease.isExpired()) {
@@ -261,14 +261,15 @@ public class RentalController {
 					lease.setRentDue(0);
 				} else {
 					lease.setRentDue(lease.getRentDue() - amountPaid);
-					System.out.println("Your rent payment is successful!");
+//					System.out.println("Your rent payment is successful!");
 				}
 				leaseFound = true;
-				break;
+				return leaseFound;
 			}
 		}
-		if (!leaseFound)
-			System.out.println("No active lease found.");
+//		if (!leaseFound)
+//			System.out.println("No active lease found.");
+		return leaseFound;
 	}
 
 	/**
