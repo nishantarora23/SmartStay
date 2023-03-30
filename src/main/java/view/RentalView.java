@@ -86,7 +86,7 @@ public class RentalView extends Application {
 		}
 
 		buttons.get(0).setOnAction(e -> addProperty());
-		// buttons.get(1).setOnAction(e -> addTenant());
+		buttons.get(1).setOnAction(e -> addTenant());
 		buttons.get(2).setOnAction(e -> rentUnit());
 		// buttons.get(3).setOnAction(e -> displayProperties());
 		// buttons.get(4).setOnAction(e -> displayTenants());
@@ -546,6 +546,92 @@ public class RentalView extends Application {
 		gridPane.addRow(9, numBathroomsLabel, numBathroomsField);
 		gridPane.addRow(10, squareFootageLabel, squareFootageField);
 		gridPane.add(hbox, 0, 12, 2, 1);
+		gridPane.setAlignment(Pos.CENTER);
+		VBox vbox = new VBox();
+		vbox.getChildren().addAll(bannerImageView, label, gridPane);
+
+		vbox.setPadding(new Insets(10));
+		vbox.setAlignment(Pos.CENTER);
+		vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+		Scene scene = new Scene(vbox, 500, 700);
+		stage.setScene(scene);
+	}
+	
+	/**
+	 * Prompts the user to enter details for a tenant and register the tenant to the system.
+	 */
+	public void addTenant() {
+		stage.setTitle("Add Tenant");
+		bannerImageView.setFitWidth(400);
+		bannerImageView.setPreserveRatio(true);
+
+		Label label = new Label("\nTENANT INFORMATION");
+		label.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+		Label firstNameLabel = new Label("First Name:");
+		TextField firstNameField = new TextField();
+
+		Label lastNameLabel = new Label("Last Name:");
+		TextField lastNameField = new TextField();
+
+		Label phoneNumberLabel = new Label("Phone Number:");
+		TextField phoneNumberField = new TextField();
+
+		Label emailLabel = new Label("Email:");
+		TextField emailField = new TextField();
+
+		Button submitButton = new Button("Submit");
+		submitButton.setPrefWidth(150);
+		submitButton.setOnAction(e -> {
+			try {
+				String firstName = firstNameField.getText();
+				String lastName = lastNameField.getText();
+				String phoneNumber = phoneNumberField.getText();
+				String email = emailField.getText();
+
+				if (firstName.isEmpty() || lastName.isEmpty() || phoneNumber.isEmpty() || email.isEmpty()) {
+					throw new IllegalArgumentException("Please fill in all required fields.");
+				}
+				
+				Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
+				controller.addTenant(tenant);
+
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Confirmation");
+				alert.setHeaderText("Tenant details have been successfully added.");
+
+				ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+				alert.getButtonTypes().setAll(okButton);
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.isPresent() && result.get() == okButton) {
+					start(stage);
+				}
+
+			} catch (IllegalArgumentException ex) {
+
+				Alert alert = new Alert(Alert.AlertType.ERROR);
+				alert.setTitle("Error");
+				alert.setHeaderText(null);
+				alert.setContentText(ex.getMessage());
+				alert.showAndWait();
+			}
+		});
+		Button button = new Button("Back to Main Menu");
+		button.setOnAction(e -> start(stage));
+		button.setPrefWidth(150);
+		HBox hbox = new HBox(10, submitButton, button);
+		hbox.setAlignment(Pos.CENTER);
+		hbox.setPadding(new Insets(10));
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		gridPane.addRow(1, firstNameLabel, firstNameField);
+		gridPane.addRow(2, lastNameLabel, lastNameField);
+		gridPane.addRow(3, phoneNumberLabel, phoneNumberField);
+		gridPane.addRow(4, emailLabel, emailField);
+		gridPane.add(hbox, 0, 7, 2, 1);
 		gridPane.setAlignment(Pos.CENTER);
 		VBox vbox = new VBox();
 		vbox.getChildren().addAll(bannerImageView, label, gridPane);
