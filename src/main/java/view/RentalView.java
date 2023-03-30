@@ -566,7 +566,7 @@ public class RentalView extends Application {
 		bannerImageView.setFitWidth(400);
 		bannerImageView.setPreserveRatio(true);
 
-		Label label = new Label("\nTENANT INFORMATION");
+		Label label = new Label("\nTENANT DETAILS");
 		label.setFont(Font.font("System", FontWeight.BOLD, 14));
 
 		Label firstNameLabel = new Label("First Name:");
@@ -599,7 +599,9 @@ public class RentalView extends Application {
 
 				Alert alert = new Alert(AlertType.CONFIRMATION);
 				alert.setTitle("Confirmation");
-				alert.setHeaderText("Tenant details have been successfully added.");
+				alert.setHeaderText("Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: "
+						+ tenant.getTenantID() + ".\nYou are successfully registered with us. "
+						+ "Please remember to keep this ID for any future communication.");
 
 				ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
 				alert.getButtonTypes().setAll(okButton);
@@ -733,33 +735,7 @@ public class RentalView extends Application {
 
 	}
 }
-//	/**
-//	 * Prompts the user to input details of a new Tenant and adds it to the
-//	 * Controller's list of tenants.
-//	 * 
-//	 * @param scanner a Scanner object used to receive input from the user
-//	 */
-//	public void addTenant(Scanner scanner) {
-//		System.out.println("\nTENANT DETAILS:");
-//		System.out.print("Enter the first name: ");
-//		String firstName = scanner.nextLine();
-//
-//		System.out.print("Enter the last name: ");
-//		String lastName = scanner.nextLine();
-//
-//		System.out.print("Enter the phone number: ");
-//		String phoneNumber = scanner.nextLine();
-//
-//		System.out.print("Enter the email: ");
-//		String email = scanner.nextLine();
-//
-//		Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
-//		controller.addTenant(tenant);
-//		System.out.println("Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: "
-//				+ tenant.getTenantID() + ". You are successfully registered with us. "
-//				+ "Please remember to keep this ID for any future communication with our rental system.\n");
-//	}
-//
+
 //	/**
 //	 * Prompts the user to select a Tenant and a Property, then adds a new Lease to
 //	 * the Controller's list of leases.
