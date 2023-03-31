@@ -101,7 +101,7 @@ public class RentalView extends Application {
 		// buttons.get(7).setOnAction(e -> displayAllLeases());
 		buttons.get(8).setOnAction(e -> payRent());
 		buttons.get(9).setOnAction(e -> displayRentSummary());
-		// buttons.get(10).setOnAction(e -> notification());
+		buttons.get(10).setOnAction(e -> notification());
 		buttons.get(11).setOnAction(e -> stage.close());
 
 		VBox vbox = new VBox(10, bannerImageView, label, buttons.get(0), buttons.get(1), buttons.get(2), buttons.get(3),
@@ -1031,6 +1031,84 @@ public class RentalView extends Application {
     
         return tableView;
 	}
+	
+	public void notification() {
+		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
+		
+		if (propertyAndInterestedTenants.isEmpty()) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No potential tenant records found.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+		}
+		else {
+			stage.setTitle("Notify Interested Tenants");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+			
+			Label label = new Label("Notification sent to the interested tenants mentioned below");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+			
+			TableView<String[]> notificationTable = createTableForNotification(propertyAndInterestedTenants);
+			
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			
+			HBox hbox = new HBox(10, button);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+		
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, notificationTable, hbox);
+			vbox.setSpacing(20);
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+	
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+			
+		}
+	}
+	
+	private TableView<String[]> createTableForNotification(HashMap<String, ArrayList<String>> propertyAndInterestedTenants) {
+		
+		TableView<String[]> tableView = new TableView<String[]>();
+		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		
+		TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
+        TableColumn<String[], String> interestedTenantsNameColumn = new TableColumn<>("Interested Tenant Names");
+        
+        propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[0]));
+        interestedTenantsNameColumn.setCellValueFactory(interestedTenant -> new SimpleStringProperty(interestedTenant.getValue()[1]));
+        
+        tableView.getColumns().add(propertyAddressColumn);
+        tableView.getColumns().add(interestedTenantsNameColumn);
+        
+        ObservableList<String[]> values = FXCollections.observableArrayList();
+        
+        for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
+            String propertyAddress = entry.getKey();
+            ArrayList<String> interestedTenantNames = entry.getValue();
+            String[] row = {propertyAddress, interestedTenantNames.toString()};
+            values.add(row);
+        }
+        
+        tableView.setItems(values);
+        
+        tableView.setFixedCellSize(25);
+        tableView.setMaxHeight(tableView.getFixedCellSize() * propertyAndInterestedTenants.size() + 30);
+    
+        return tableView;
+	}
 }
 
 //	/**
@@ -1090,28 +1168,6 @@ public class RentalView extends Application {
 //			System.out.println("List of leases:");
 //			for (Lease lease : leases) {
 //				System.out.println("\t" + lease);
-//			}
-//		}
-//	}
-//
-//	/**
-//	 * Sends notifications to all potential tenants of a property through the
-//	 * controller.
-//	 */
-//	public void notification() {
-//		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
-//		if (propertyAndInterestedTenants.isEmpty()) {
-//			System.out.println("No potential tenant records found.\n");
-//		} else {
-//			for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
-//				String propertyAddress = entry.getKey();
-//				ArrayList<String> interestedTenantNames = entry.getValue();
-//				System.out.println("Property: " + propertyAddress);
-//				int i = 1;
-//				for (String name : interestedTenantNames) {
-//					System.out.println("\t" + i + "." + name + " has been notified.");
-//				}
-//				System.out.println();
 //			}
 //		}
 //	}
