@@ -18,6 +18,9 @@ import model.PropertyBuilder;
 import model.Tenant;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -29,7 +32,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -94,7 +100,7 @@ public class RentalView extends Application {
 		// buttons.get(6).setOnAction(e -> displayVacantUnits());
 		// buttons.get(7).setOnAction(e -> displayAllLeases());
 		buttons.get(8).setOnAction(e -> payRent());
-		// buttons.get(9).setOnAction(e -> displayRentSummary());
+		buttons.get(9).setOnAction(e -> displayRentSummary());
 		// buttons.get(10).setOnAction(e -> notification());
 		buttons.get(11).setOnAction(e -> stage.close());
 
@@ -847,6 +853,183 @@ public class RentalView extends Application {
 			Scene scene = new Scene(vbox, 500, 700);
 			stage.setScene(scene);
 		}
+	}
+	
+	public void displayRentSummary() {
+		
+		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = controller.displayRentPaymentSummary();
+		if (paidOrNotPaidAndTenants.isEmpty()) {
+			
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No tenant records found associated with a lease.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+		}
+		else {
+			ArrayList<String> paidTenants = paidOrNotPaidAndTenants.get("PAID");
+			ArrayList<String> unpaidTenants = paidOrNotPaidAndTenants.get("UNPAID");
+		
+			stage.setTitle("Pay Rent");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+			
+			Label label = new Label("\nChoose from the options below:");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+			
+			Button paidTenantsButton = new Button("Tenants with paid rent");
+			paidTenantsButton.setPrefWidth(150);
+			paidTenantsButton.setOnAction(e -> paidTenantsDisplay(paidTenants));
+			
+			Button unpaidTenantsButton = new Button("Tenants with unpaid rent");
+			unpaidTenantsButton.setPrefWidth(150);
+			unpaidTenantsButton.setOnAction(e -> unpaidTenantsDisplay(unpaidTenants));
+			
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			HBox hbox = new HBox(30, paidTenantsButton, unpaidTenantsButton);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(50));
+
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, hbox, button);
+	
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+	
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	}
+	
+	public void paidTenantsDisplay(ArrayList<String> paidTenants) {
+		
+		if (paidTenants == null) {
+			
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No tenant records found for paid rent.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				displayRentSummary();
+			}
+		}
+		else {
+			stage.setTitle("Paid Tenant Summary");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+			
+			Label label = new Label("SUMMARY FOR TENANTS WHO PAID RENT");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+			
+			TableView<String[]> paidTenantsTable = createTableForRentPaymentSummary(paidTenants);
+			
+			Button backToRentSummaryButton = new Button("Back to Rent Summary");
+			backToRentSummaryButton.setOnAction(e -> displayRentSummary());
+			backToRentSummaryButton.setPrefWidth(150);
+			
+			HBox hbox = new HBox(10, backToRentSummaryButton);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+		
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, paidTenantsTable, hbox);
+			vbox.setSpacing(20);
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+	
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	}
+	
+	public void unpaidTenantsDisplay(ArrayList<String> unpaidTenants) {
+		
+		if (unpaidTenants == null) {
+			
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No tenant records found for unpaid rent.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				displayRentSummary();
+			}
+		}
+		else {
+			stage.setTitle("Unpaid Tenant Summary");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+			
+			Label label = new Label("SUMMARY FOR TENANTS WITH UNPAID RENT");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+			
+			TableView<String[]> unpaidTenantsTable = createTableForRentPaymentSummary(unpaidTenants);
+			
+			Button backToRentSummaryButton = new Button("Back to Rent Summary");
+			backToRentSummaryButton.setOnAction(e -> displayRentSummary());
+			backToRentSummaryButton.setPrefWidth(150);
+			
+			HBox hbox = new HBox(10, backToRentSummaryButton);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+		
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, unpaidTenantsTable, hbox);
+			vbox.setSpacing(20);
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+	
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	}
+	
+	private TableView<String[]> createTableForRentPaymentSummary(ArrayList<String> data) {
+		
+		TableView<String[]> tableView = new TableView<String[]>();
+		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		
+		TableColumn<String[], String> tenantNameColumn = new TableColumn<>("Tenant Name");
+        TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
+        
+        tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
+        propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+        
+        tableView.getColumns().add(tenantNameColumn);
+        tableView.getColumns().add(propertyColumn);
+        
+        ObservableList<String[]> values = FXCollections.observableArrayList();
+        
+        for(String value : data) {
+        	String splitValue[] = value.split(" : ");
+        	values.add(new String[] {splitValue[0], splitValue[1]});
+        }
+        
+        tableView.setItems(values);
+        
+        tableView.setFixedCellSize(25);
+        tableView.setMaxHeight(tableView.getFixedCellSize() * data.size() + 30);
+        //tableView.setPrefHeight((data.size() + 1) * tableView.getFixedCellSize());
+    
+        return tableView;
 	}
 }
 
