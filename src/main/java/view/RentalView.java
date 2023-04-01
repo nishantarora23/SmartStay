@@ -958,6 +958,7 @@ public class RentalView extends Application {
 			propertyBox.setSpacing(10);
 			propertyBox.setPadding(new Insets(10));
 			propertyBox.setStyle("-fx-background-color: #f2f2f2;");
+			propertyBox.setPrefSize(300, 300);
 
 			for (Property property : properties) {
 				Label propertyLabel = new Label(property.toString());
@@ -967,6 +968,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(propertyBox);
+			scrollPane.setPrefViewportWidth(300);
+			scrollPane.setPrefViewportHeight(300);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
@@ -1023,6 +1026,7 @@ public class RentalView extends Application {
 			tenantsBox.setSpacing(10);
 			tenantsBox.setPadding(new Insets(10));
 			tenantsBox.setStyle("-fx-background-color: #f2f2f2;");
+			tenantsBox.setPrefSize(300, 300);
 
 			for (Tenant tenant : tenants) {
 					Label tenantLabel = new Label(tenant.toString());
@@ -1032,6 +1036,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(tenantsBox);
+			scrollPane.setPrefViewportWidth(300);
+			scrollPane.setPrefViewportHeight(300);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
@@ -1088,6 +1094,7 @@ public class RentalView extends Application {
 			leaseBox.setSpacing(10);
 			leaseBox.setPadding(new Insets(10));
 			leaseBox.setStyle("-fx-background-color: #f2f2f2;");
+			leaseBox.setPrefSize(300, 300);
 
 			for (Lease lease : leases) {
 				if (!lease.isExpired()) {
@@ -1099,6 +1106,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(leaseBox);
+			scrollPane.setPrefViewportWidth(300);
+			scrollPane.setPrefViewportHeight(300);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
@@ -1156,6 +1165,7 @@ public class RentalView extends Application {
 			propertyBox.setSpacing(10);
 			propertyBox.setPadding(new Insets(10));
 			propertyBox.setStyle("-fx-background-color: #f2f2f2;");
+			propertyBox.setPrefSize(300, 300);
 
 			for (Property property : properties) {
 				Label propertyLabel = new Label(property.toString());
@@ -1165,6 +1175,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(propertyBox);
+			scrollPane.setPrefViewportWidth(300);
+			scrollPane.setPrefViewportHeight(300);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
@@ -1220,6 +1232,7 @@ public class RentalView extends Application {
 			leaseBox.setSpacing(10);
 			leaseBox.setPadding(new Insets(10));
 			leaseBox.setStyle("-fx-background-color: #f2f2f2;");
+			leaseBox.setPrefSize(300, 300);
 
 			for (Lease lease : leases) {
 				if (!lease.isExpired()) {
@@ -1231,6 +1244,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(leaseBox);
+			scrollPane.setPrefViewportWidth(300);
+			scrollPane.setPrefViewportHeight(300);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
