@@ -17,6 +17,7 @@ import model.PropertyBuilder;
 import model.Tenant;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,8 +37,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -602,7 +601,7 @@ public class RentalView extends Application {
 					throw new IllegalArgumentException("Please fill in all required fields.");
 				}
 
-				Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
+				Tenant tenant = new Tenant(firstName, lastName, email, phoneNumber);
 				controller.addTenant(tenant);
 
 				Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -954,28 +953,39 @@ public class RentalView extends Application {
 
 			Label label = new Label("\nPROPERTIES");
 			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+	
+			TableView<String[]> tableView = new TableView<String[]>();
 
-			VBox propertyBox = new VBox();
-			propertyBox.setSpacing(10);
-			propertyBox.setPadding(new Insets(10));
-			propertyBox.setStyle("-fx-background-color: #f2f2f2;");
-			propertyBox.setPrefSize(300, 300);
+			TableColumn<String[], String> propertyNumberColumn = new TableColumn<>("S. No.");
+			TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
 
+			propertyNumberColumn.setCellValueFactory(pNumber -> new SimpleStringProperty(pNumber.getValue()[0]));
+			propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+
+			tableView.getColumns().add(propertyNumberColumn);
+			tableView.getColumns().add(propertyAddressColumn);
+
+			ObservableList<String[]> values = FXCollections.observableArrayList();
+			int i = 1;
 			for (Property property : properties) {
-				Label propertyLabel = new Label(property.toString());
-				propertyLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
-				propertyBox.getChildren().add(propertyLabel);
+			    String propertyAddress = property.getFullAddress();
+			    String[] row = {String.valueOf(i), propertyAddress};
+			    values.add(row);
+			    i++;
 			}
 
-			ScrollPane scrollPane = new ScrollPane();
-			scrollPane.setContent(propertyBox);
-			scrollPane.setPrefViewportWidth(300);
-			scrollPane.setPrefViewportHeight(300);
+			tableView.setItems(values);
+
+			tableView.setFixedCellSize(25);
+			int numRowsToDisplay = Math.min(properties.size()+1, values.size()+1);
+			tableView.setMaxHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+			tableView.setPrefHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+			tableView.setPrefWidth(450);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
-			HBox hbox = new HBox(10, scrollPane);
+			HBox hbox = new HBox(6, tableView);
 			hbox.setAlignment(Pos.CENTER);
 			hbox.setPadding(new Insets(10));
 			GridPane gridPane = new GridPane();
@@ -1027,7 +1037,6 @@ public class RentalView extends Application {
 			tenantsBox.setSpacing(10);
 			tenantsBox.setPadding(new Insets(10));
 			tenantsBox.setStyle("-fx-background-color: #f2f2f2;");
-			tenantsBox.setPrefSize(300, 300);
 
 			for (Tenant tenant : tenants) {
 					Label tenantLabel = new Label(tenant.toString());
@@ -1037,8 +1046,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(tenantsBox);
-			scrollPane.setPrefViewportWidth(300);
-			scrollPane.setPrefViewportHeight(300);
+			scrollPane.setPrefSize(330, 330);
+			scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
@@ -1095,7 +1104,6 @@ public class RentalView extends Application {
 			leaseBox.setSpacing(10);
 			leaseBox.setPadding(new Insets(10));
 			leaseBox.setStyle("-fx-background-color: #f2f2f2;");
-			leaseBox.setPrefSize(300, 300);
 
 			for (Lease lease : leases) {
 				if (!lease.isExpired()) {
@@ -1107,8 +1115,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(leaseBox);
-			scrollPane.setPrefViewportWidth(300);
-			scrollPane.setPrefViewportHeight(300);
+			scrollPane.setPrefSize(330, 330);
+			scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
@@ -1162,27 +1170,38 @@ public class RentalView extends Application {
 			Label label = new Label("\nVACANT PROPERTIES");
 			label.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-			VBox propertyBox = new VBox();
-			propertyBox.setSpacing(10);
-			propertyBox.setPadding(new Insets(10));
-			propertyBox.setStyle("-fx-background-color: #f2f2f2;");
-			propertyBox.setPrefSize(300, 300);
+			TableView<String[]> tableView = new TableView<String[]>();
 
+			TableColumn<String[], String> propertyNumberColumn = new TableColumn<>("S. No.");
+			TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
+
+			propertyNumberColumn.setCellValueFactory(pNumber -> new SimpleStringProperty(pNumber.getValue()[0]));
+			propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+
+			tableView.getColumns().add(propertyNumberColumn);
+			tableView.getColumns().add(propertyAddressColumn);
+
+			ObservableList<String[]> values = FXCollections.observableArrayList();
+			int i = 1;
 			for (Property property : properties) {
-				Label propertyLabel = new Label(property.toString());
-				propertyLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
-				propertyBox.getChildren().add(propertyLabel);
+			    String propertyAddress = property.getFullAddress();
+			    String[] row = {String.valueOf(i), propertyAddress};
+			    values.add(row);
+			    i++;
 			}
 
-			ScrollPane scrollPane = new ScrollPane();
-			scrollPane.setContent(propertyBox);
-			scrollPane.setPrefViewportWidth(300);
-			scrollPane.setPrefViewportHeight(300);
+			tableView.setItems(values);
+
+			tableView.setFixedCellSize(25);
+			int numRowsToDisplay = Math.min(properties.size()+1, values.size()+1);
+			tableView.setMaxHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+			tableView.setPrefHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+			tableView.setPrefWidth(450);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
-			HBox hbox = new HBox(10, scrollPane);
+			HBox hbox = new HBox(6, tableView);
 			hbox.setAlignment(Pos.CENTER);
 			hbox.setPadding(new Insets(10));
 			GridPane gridPane = new GridPane();
@@ -1233,7 +1252,6 @@ public class RentalView extends Application {
 			leaseBox.setSpacing(10);
 			leaseBox.setPadding(new Insets(10));
 			leaseBox.setStyle("-fx-background-color: #f2f2f2;");
-			leaseBox.setPrefSize(300, 300);
 
 			for (Lease lease : leases) {
 				if (!lease.isExpired()) {
@@ -1245,8 +1263,8 @@ public class RentalView extends Application {
 
 			ScrollPane scrollPane = new ScrollPane();
 			scrollPane.setContent(leaseBox);
-			scrollPane.setPrefViewportWidth(300);
-			scrollPane.setPrefViewportHeight(300);
+			scrollPane.setPrefSize(330, 330);
+			scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> start(stage));

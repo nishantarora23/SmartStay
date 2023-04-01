@@ -78,8 +78,8 @@ public class Tenant {
 	 */
 	@Override
 	public String toString() {
-		return this.getTenantID() + ". " + this.getFirstName() + " " + this.getLastName() + "\n\tEmail: "
-				+ this.getEmail() + "\n\tPhone Number: " + this.getPhoneNumber();
+		return "Tenant ID #"+this.getTenantID() + " \n\tName: " + this.getFirstName() + " " + this.getLastName() + "\n\tEmail: "
+				+ this.getEmail() + "\n\tPh. No.: " + this.getPhoneNumber();
 	}
 
 }

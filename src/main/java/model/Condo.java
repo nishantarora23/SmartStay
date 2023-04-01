@@ -103,7 +103,7 @@ public class Condo extends Property {
 	 */
 	@Override
 	public String getFullAddress() {
-		return this.getPropertyType() + " " + this.getUnitNumber() + ", " + this.getStreetNumber() + ", " + super.getStreetName() + ", " + super.getCity() + ", "
+		return this.getPropertyType() + " # " + this.getUnitNumber() + ", " + this.getStreetNumber() + ", " + super.getStreetName() + ", " + super.getCity() + ", "
 				+ super.getProvince() + ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
 }

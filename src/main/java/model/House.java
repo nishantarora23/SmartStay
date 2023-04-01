@@ -103,7 +103,7 @@ public class House extends Property {
 	 */
 	@Override
 	public String getFullAddress() {
-		return this.getPropertyType() + " " + this.getHouseNumber() + ", " + this.getStreetNumber() + ", " + super.getStreetName() + ", " 
+		return this.getPropertyType() + " # " + this.getHouseNumber() + ", " + this.getStreetNumber() + ", " + super.getStreetName() + ", " 
 				+ super.getCity() + ", " + super.getProvince() + ", " + super.getCountry() + ", " + super.getPostalCode();
 	}
 
