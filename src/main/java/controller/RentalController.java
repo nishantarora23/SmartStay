@@ -141,7 +141,7 @@ public class RentalController {
 	 * @param endDate
 	 * @param rentAmount
 	 */
-	public void rentUnit(Property property, Tenant tenant, LocalDate startDate, LocalDate endDate, double rentAmount) {
+	public boolean rentUnit(Property property, Tenant tenant, LocalDate startDate, LocalDate endDate, double rentAmount) {
 		// Check if property is available
 		boolean propertyAvailable = true;
 		ArrayList<Lease> leases = this.getLeases();
@@ -155,9 +155,11 @@ public class RentalController {
 		if (propertyAvailable) {
 			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
 			this.leases.add(lease);
+			return true;
 		} else {
 			// Property is already rented
 			System.out.println("Sorry, the property is not available for rent.");
+			return false;
 		}
 	}
 

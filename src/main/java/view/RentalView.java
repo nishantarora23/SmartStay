@@ -1,7 +1,6 @@
 package view;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +28,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -39,7 +40,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
 //import java.util.Scanner;
 
@@ -88,13 +88,13 @@ public class RentalView extends Application {
 		buttons.get(0).setOnAction(e -> addProperty());
 		buttons.get(1).setOnAction(e -> addTenant());
 		buttons.get(2).setOnAction(e -> rentUnit());
-		// buttons.get(3).setOnAction(e -> displayProperties());
-		// buttons.get(4).setOnAction(e -> displayTenants());
-		// buttons.get(5).setOnAction(e -> displayRentedUnits());
-		// buttons.get(6).setOnAction(e -> displayVacantUnits());
-		// buttons.get(7).setOnAction(e -> displayAllLeases());
+		buttons.get(3).setOnAction(e -> displayProperties());
+		buttons.get(4).setOnAction(e -> displayTenants());
+		buttons.get(5).setOnAction(e -> displayRentedUnits());
+		buttons.get(6).setOnAction(e -> displayVacantUnits());
+		buttons.get(7).setOnAction(e -> displayAllLeases());
 		buttons.get(8).setOnAction(e -> payRent());
-		// buttons.get(9).setOnAction(e -> displayRentSummary());
+		//buttons.get(9).setOnAction(e -> displayRentSummary());
 		// buttons.get(10).setOnAction(e -> notification());
 		buttons.get(11).setOnAction(e -> stage.close());
 
@@ -557,9 +557,10 @@ public class RentalView extends Application {
 		Scene scene = new Scene(vbox, 500, 700);
 		stage.setScene(scene);
 	}
-	
+
 	/**
-	 * Prompts the user to enter details for a tenant and register the tenant to the system.
+	 * Prompts the user to enter details for a tenant and register the tenant to the
+	 * system.
 	 */
 	public void addTenant() {
 		stage.setTitle("Add Tenant");
@@ -593,7 +594,7 @@ public class RentalView extends Application {
 				if (firstName.isEmpty() || lastName.isEmpty() || phoneNumber.isEmpty() || email.isEmpty()) {
 					throw new IllegalArgumentException("Please fill in all required fields.");
 				}
-				
+
 				Tenant tenant = new Tenant(firstName, lastName, phoneNumber, email);
 				controller.addTenant(tenant);
 
@@ -647,6 +648,7 @@ public class RentalView extends Application {
 	}
 
 	public void rentUnit() {
+
 		stage.setTitle("Unit Rental");
 		bannerImageView.setFitWidth(400);
 		bannerImageView.setPreserveRatio(true);
@@ -654,58 +656,128 @@ public class RentalView extends Application {
 		Label label = new Label("RENT A UNIT\n");
 		label.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-		Label tenantLabel = new Label("Tenant ID:");
-		TextField tenantTextField = new TextField();
+		TextField tenantIDField = new TextField();
+		Label tenantIDLabel = new Label("Tenant ID: ");
 
-		Label propertyLabel = new Label("Select a property:");
-		ChoiceBox<String> propertyChoiceBox = new ChoiceBox<>();
-		ArrayList<Property> properties = controller.getAllProperties();
-		for (int i = 0; i < properties.size(); i++) {
-			Property property = properties.get(i);
-			propertyChoiceBox.getItems().add(property.toString());
-		}
 
-		Label startDateLabel = new Label("Lease start date:");
+		ChoiceBox<Property> propertyChoiceBox = new ChoiceBox<>();
+		propertyChoiceBox.getItems().addAll(controller.getAllProperties());
+		Label propertyLabel = new Label("Property: ");
+
 		DatePicker startDatePicker = new DatePicker();
-		startDatePicker.setConverter(new StringConverter<LocalDate>() {
-			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		Label startDateLabel = new Label("Lease start date: ");
 
-			@Override
-			public String toString(LocalDate date) {
-				return date != null ? dateFormatter.format(date) : "";
-			}
-
-			@Override
-			public LocalDate fromString(String string) {
-				return string != null && !string.isEmpty() ? LocalDate.parse(string, dateFormatter) : null;
-			}
-		});
-
-		Label endDateLabel = new Label("Lease end date:");
 		DatePicker endDatePicker = new DatePicker();
-		endDatePicker.setConverter(new StringConverter<LocalDate>() {
-			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-			@Override
-			public String toString(LocalDate date) {
-				return date != null ? dateFormatter.format(date) : "";
-			}
-
-			@Override
-			public LocalDate fromString(String string) {
-				return string != null && !string.isEmpty() ? LocalDate.parse(string, dateFormatter) : null;
-			}
-		});
-
-		Label rentAmountLabel = new Label("Rental amount (CAD):");
-		TextField rentAmountTextField = new TextField();
-
-		Alert alert = new Alert(AlertType.ERROR);
-		alert.setTitle("Error");
-		alert.setHeaderText(null);
+		Label endDateLabel = new Label("Lease end date: ");
 
 		Button submitButton = new Button("Submit");
 		submitButton.setPrefWidth(150);
+		submitButton.setOnAction(e -> {
+			int tenantID = Integer.parseInt(tenantIDField.getText());
+			Tenant tenant = controller.getTenant(tenantID);
+
+			Property property = propertyChoiceBox.getValue();
+
+			LocalDate startDate = startDatePicker.getValue();
+
+			LocalDate endDate = endDatePicker.getValue();
+
+			ArrayList<Property> vacantProperties = controller.getVacantUnits();
+
+			boolean isVacant = false;
+			for (Property vacantProperty : vacantProperties) {
+				if (vacantProperty.getPropertyId() == property.getPropertyId()) {
+					isVacant = true;
+					break;
+				}
+			}
+
+			Lease coincidingLease = controller.getLeaseByPropertyAndDates(property, startDate, endDate);
+
+			if (isVacant || coincidingLease != null) {
+				// Check if there is an existing lease during the specified dates
+				if (coincidingLease != null) {
+					// Ask user if they want to change the lease data or exit
+					Alert alert = new Alert(AlertType.WARNING);
+					alert.setTitle("Existing lease");
+					alert.setHeaderText("There is an existing lease for this property during the specified dates. "
+							+ "Dates of coinciding lease: " + coincidingLease.getStartDate() + " to "
+							+ coincidingLease.getEndDate() + "\nDo you want to change the lease data?");
+					ButtonType yesButton = new ButtonType("Yes");
+					ButtonType noButton = new ButtonType("No");
+					alert.getButtonTypes().setAll(yesButton, noButton);
+
+					Optional<ButtonType> result = alert.showAndWait();
+
+					if (result.isPresent() && result.get() == yesButton) {
+						alert.close();
+
+					} else {
+						property.addInterestedTenants(tenant);
+						Alert infoAlert = new Alert(AlertType.INFORMATION);
+						infoAlert.setTitle("Unit Rented");
+						infoAlert.setHeaderText(null);
+						infoAlert.setContentText("The selected unit is currently rented out. "
+								+ "A notification will be sent once the unit is available.");
+						ButtonType okButton = new ButtonType("Ok");
+						infoAlert.getButtonTypes().setAll(okButton);
+						Optional<ButtonType> results = infoAlert.showAndWait();
+						if (results.isPresent() && results.get() == okButton) {
+							alert.close();
+							start(stage);
+						}
+					}
+
+				} else {
+					startDate = startDatePicker.getValue();
+					endDate = endDatePicker.getValue();
+
+					if (startDate == null || endDate == null) {
+						Alert errorAlert = new Alert(AlertType.ERROR);
+						errorAlert.setTitle("Error");
+						errorAlert.setHeaderText(null);
+						errorAlert.setContentText("Please select valid dates.");
+						errorAlert.showAndWait();
+						return;
+					}
+
+					TextInputDialog rentAmountDialog = new TextInputDialog();
+					rentAmountDialog.setTitle("Rent Amount");
+					rentAmountDialog.setHeaderText(null);
+					rentAmountDialog.setContentText("Rent amount (CAD):");
+					Optional<String> rentAmountResult = rentAmountDialog.showAndWait();
+					if (rentAmountResult.isPresent()) {
+						double rentAmount;
+						try {
+							rentAmount = Double.parseDouble(rentAmountResult.get());
+						} catch (NumberFormatException e1) {
+							Alert errorAlert = new Alert(AlertType.ERROR);
+							errorAlert.setTitle("Error");
+							errorAlert.setHeaderText(null);
+							errorAlert.setContentText("Invalid input. Please enter a valid number.");
+							errorAlert.showAndWait();
+							return;
+						}
+
+						Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
+						controller.addLease(lease);
+						Alert successAlert = new Alert(AlertType.INFORMATION);
+						successAlert.setTitle("Success");
+						successAlert.setHeaderText(null);
+						successAlert.setContentText("The tenant " + tenant.getFirstName() + " " + tenant.getLastName()
+						+ " has been successfully rented the unit at " + property.getFullAddress() + ".");
+						ButtonType okButton = new ButtonType("Ok");
+						successAlert.getButtonTypes().setAll(okButton);
+						Optional<ButtonType> results = successAlert.showAndWait();
+						if (results.isPresent() && results.get() == okButton) {
+							successAlert.close();
+							start(stage);
+						}
+					}
+
+				}
+			}
+		});
 		Button button = new Button("Back to Main Menu");
 		button.setOnAction(e -> start(stage));
 		button.setPrefWidth(150);
@@ -716,13 +788,13 @@ public class RentalView extends Application {
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
 		gridPane.setVgap(10);
-		gridPane.addRow(1, tenantLabel, tenantTextField);
+		gridPane.addRow(1, tenantIDLabel, tenantIDField);
 		gridPane.addRow(2, propertyLabel, propertyChoiceBox);
 		gridPane.addRow(3, startDateLabel, startDatePicker);
 		gridPane.addRow(4, endDateLabel, endDatePicker);
-		gridPane.addRow(5, rentAmountLabel, rentAmountTextField);
-		gridPane.add(hbox, 0, 7, 2, 1);
+		gridPane.add(hbox, 0, 6, 2, 1);
 		gridPane.setAlignment(Pos.CENTER);
+
 		VBox vbox = new VBox();
 		vbox.getChildren().addAll(bannerImageView, label, gridPane);
 
@@ -732,17 +804,16 @@ public class RentalView extends Application {
 
 		Scene scene = new Scene(vbox, 500, 700);
 		stage.setScene(scene);
-
 	}
-	
+
 	/**
 	 * Prompts the user to enter details for rent payment and pay the rent.
 	 */
 	public void payRent() {
-		
+
 		ArrayList<Lease> leases = controller.getAllLeases();
-		if(leases.isEmpty()) {
-			
+		if (leases.isEmpty()) {
+
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Information");
 			alert.setHeaderText("No lease records found for which payment can be made.");
@@ -755,61 +826,60 @@ public class RentalView extends Application {
 				start(stage);
 			}
 		}
-		
+
 		else {
 			stage.setTitle("Pay Rent");
 			bannerImageView.setFitWidth(400);
 			bannerImageView.setPreserveRatio(true);
-	
+
 			Label label = new Label("\nRENT PAYMENT");
 			label.setFont(Font.font("System", FontWeight.BOLD, 14));
-	
+
 			Label leaseIDLabel = new Label("Lease ID:");
 			TextField leaseIDField = new TextField();
-	
+
 			Label amountLabel = new Label("Amount:");
 			TextField amountField = new TextField();
-	
+
 			Button submitButton = new Button("Submit");
 			submitButton.setPrefWidth(150);
 			submitButton.setOnAction(e -> {
-				try {				
+				try {
 					if (leaseIDField.getText().isEmpty() || amountField.getText().isEmpty()) {
 						throw new IllegalArgumentException("Please fill in all required fields.");
 					}
-					
+
 					int leaseID = Integer.parseInt(leaseIDField.getText());
 					double amount = Double.parseDouble(amountField.getText());
-					
+
 					boolean rentPaid = controller.makeRentPayment(leaseID, amount);
-					
-					if(rentPaid) {
+
+					if (rentPaid) {
 						Alert alert = new Alert(AlertType.CONFIRMATION);
 						alert.setTitle("Confirmation");
 						alert.setHeaderText("Rent payment is successful!");
-	
+
 						ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
 						alert.getButtonTypes().setAll(okButton);
-	
+
 						Optional<ButtonType> result = alert.showAndWait();
 						if (result.isPresent() && result.get() == okButton) {
 							start(stage);
 						}
-					}
-					else {
+					} else {
 						Alert alert = new Alert(AlertType.ERROR);
 						alert.setTitle("Error");
 						alert.setHeaderText("No active lease found.");
-	
+
 						ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
 						alert.getButtonTypes().setAll(okButton);
-	
+
 						Optional<ButtonType> result = alert.showAndWait();
 						if (result.isPresent() && result.get() == okButton) {
 							start(stage);
 						}
 					}
-					
+
 				} catch (NumberFormatException ex) {
 					Alert alert = new Alert(Alert.AlertType.ERROR);
 					alert.setTitle("Error");
@@ -839,77 +909,346 @@ public class RentalView extends Application {
 			gridPane.setAlignment(Pos.CENTER);
 			VBox vbox = new VBox();
 			vbox.getChildren().addAll(bannerImageView, label, gridPane);
-	
+
 			vbox.setPadding(new Insets(10));
 			vbox.setAlignment(Pos.CENTER);
 			vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	}
 	
+	/**
+	 * Displays all properties by retrieving the list of properties from the
+	 * controller and printing them to the console.
+	 */
+	public void displayProperties() {
+		ArrayList<Property> properties = controller.getAllProperties();
+
+		if (properties.isEmpty()) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No Property records to display.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+
+		} else {
+			stage.setTitle("Display Properties");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+
+			Label label = new Label("\nPROPERTIES");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+			VBox propertyBox = new VBox();
+			propertyBox.setSpacing(10);
+			propertyBox.setPadding(new Insets(10));
+			propertyBox.setStyle("-fx-background-color: #f2f2f2;");
+
+			for (Property property : properties) {
+				Label propertyLabel = new Label(property.toString());
+				propertyLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+				propertyBox.getChildren().add(propertyLabel);
+			}
+
+			ScrollPane scrollPane = new ScrollPane();
+			scrollPane.setContent(propertyBox);
+
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			HBox hbox = new HBox(10, scrollPane);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+			GridPane gridPane = new GridPane();
+			gridPane.setHgap(10);
+			gridPane.setVgap(10);
+
+			gridPane.add(hbox, 0, 3, 2, 1);
+			gridPane.setAlignment(Pos.CENTER);
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
+
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	
+	}
+
+	/**
+	 * Displays all tenants by retrieving the list of tenants from the controller
+	 * and printing them to the console.
+	 */
+	public void displayTenants() {
+		ArrayList<Tenant> tenants = controller.getAllTenants();
+		if (tenants.isEmpty()) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No tenant records to display.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+		} else {
+			stage.setTitle("Display Tenants");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+
+			Label label = new Label("\nTENANTS");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+			VBox tenantsBox = new VBox();
+			tenantsBox.setSpacing(10);
+			tenantsBox.setPadding(new Insets(10));
+			tenantsBox.setStyle("-fx-background-color: #f2f2f2;");
+
+			for (Tenant tenant : tenants) {
+					Label tenantLabel = new Label(tenant.toString());
+					tenantLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+					tenantsBox.getChildren().add(tenantLabel);
+			}
+
+			ScrollPane scrollPane = new ScrollPane();
+			scrollPane.setContent(tenantsBox);
+
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			HBox hbox = new HBox(10, scrollPane);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+			GridPane gridPane = new GridPane();
+			gridPane.setHgap(10);
+			gridPane.setVgap(10);
+
+			gridPane.add(hbox, 0, 3, 2, 1);
+			gridPane.setAlignment(Pos.CENTER);
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
+
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	
+	}
+
+	/**
+	 * Displays all rented units by retrieving the list of leases from the
+	 * controller and printing them to the console if the lease is still active.
+	 */
+	private void displayRentedUnits() {
+		ArrayList<Lease> leases = controller.getAllLeases();
+		if (leases.isEmpty()) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No rented unit records to display.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+		} else {
+			stage.setTitle("Display Rented Units");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+
+			Label label = new Label("\nRENTED UNITS");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+			VBox leaseBox = new VBox();
+			leaseBox.setSpacing(10);
+			leaseBox.setPadding(new Insets(10));
+			leaseBox.setStyle("-fx-background-color: #f2f2f2;");
+
+			for (Lease lease : leases) {
+				if (!lease.isExpired()) {
+					Label leaseLabel = new Label(lease.toString());
+					leaseLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+					leaseBox.getChildren().add(leaseLabel);
+				}
+			}
+
+			ScrollPane scrollPane = new ScrollPane();
+			scrollPane.setContent(leaseBox);
+
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			HBox hbox = new HBox(10, scrollPane);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+			GridPane gridPane = new GridPane();
+			gridPane.setHgap(10);
+			gridPane.setVgap(10);
+
+			gridPane.add(hbox, 0, 3, 2, 1);
+			gridPane.setAlignment(Pos.CENTER);
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
+
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	}
+
+
+	/**
+	 * Displays all vacant units by retrieving the list of properties from the
+	 * controller that are currently vacant and printing them to the console.
+	 */
+	public void displayVacantUnits() {
+		ArrayList<Property> properties = controller.getVacantUnits();
+		if (properties.isEmpty()) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No vacant unit records to display.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+
+		} else {
+			stage.setTitle("Display Vacant Properties");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+
+			Label label = new Label("\nVACANT PROPERTIES");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+			VBox propertyBox = new VBox();
+			propertyBox.setSpacing(10);
+			propertyBox.setPadding(new Insets(10));
+			propertyBox.setStyle("-fx-background-color: #f2f2f2;");
+
+			for (Property property : properties) {
+				Label propertyLabel = new Label(property.toString());
+				propertyLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+				propertyBox.getChildren().add(propertyLabel);
+			}
+
+			ScrollPane scrollPane = new ScrollPane();
+			scrollPane.setContent(propertyBox);
+
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			HBox hbox = new HBox(10, scrollPane);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+			GridPane gridPane = new GridPane();
+			gridPane.setHgap(10);
+			gridPane.setVgap(10);
+
+			gridPane.add(hbox, 0, 3, 2, 1);
+			gridPane.setAlignment(Pos.CENTER);
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
+
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+			Scene scene = new Scene(vbox, 500, 700);
+			stage.setScene(scene);
+		}
+	}
+
+	/**
+	 * Displays all leases by retrieving the list of leases from the controller and
+	 * printing them to the console.
+	 */
+	public void displayAllLeases() {
+		ArrayList<Lease> leases = controller.getAllLeases();
+		if (leases.isEmpty()) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Information");
+			alert.setHeaderText("No active lease records to display.");
+
+			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+			alert.getButtonTypes().setAll(okButton);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == okButton) {
+				start(stage);
+			}
+		} else {
+			stage.setTitle("Display Leases");
+			bannerImageView.setFitWidth(400);
+			bannerImageView.setPreserveRatio(true);
+
+			Label label = new Label("\nLEASES");
+			label.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+			VBox leaseBox = new VBox();
+			leaseBox.setSpacing(10);
+			leaseBox.setPadding(new Insets(10));
+			leaseBox.setStyle("-fx-background-color: #f2f2f2;");
+
+			for (Lease lease : leases) {
+				if (!lease.isExpired()) {
+					Label leaseLabel = new Label(lease.toString());
+					leaseLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+					leaseBox.getChildren().add(leaseLabel);
+				}
+			}
+
+			ScrollPane scrollPane = new ScrollPane();
+			scrollPane.setContent(leaseBox);
+
+			Button button = new Button("Back to Main Menu");
+			button.setOnAction(e -> start(stage));
+			button.setPrefWidth(150);
+			HBox hbox = new HBox(10, scrollPane);
+			hbox.setAlignment(Pos.CENTER);
+			hbox.setPadding(new Insets(10));
+			GridPane gridPane = new GridPane();
+			gridPane.setHgap(10);
+			gridPane.setVgap(10);
+
+			gridPane.add(hbox, 0, 3, 2, 1);
+			gridPane.setAlignment(Pos.CENTER);
+			VBox vbox = new VBox();
+			vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
+
+			vbox.setPadding(new Insets(10));
+			vbox.setAlignment(Pos.CENTER);
+			vbox.setStyle("-fx-background-color: #FFFFFF;");
+
 			Scene scene = new Scene(vbox, 500, 700);
 			stage.setScene(scene);
 		}
 	}
 }
-
-//	/**
-//	 * Prompts the user to select a Tenant and a Property, then adds a new Lease to
-//	 * the Controller's list of leases.
-//	 * 
-//	 * @param scanner a Scanner object used to receive input from the user
-//	 */
-
-//
-//	/**
-//	 * Displays all rented units by retrieving the list of leases from the
-//	 * controller and printing them to the console if the lease is still active.
-//	 */
-//	private void displayRentedUnits() {
-//		ArrayList<Lease> leases = controller.getAllLeases();
-//		if (leases.isEmpty()) {
-//			System.out.println("No rented unit records to display");
-//		} else {
-//			System.out.println("List of rented units: ");
-//			int i = 1;
-//			for (Lease lease : leases) {
-//				if (!lease.isExpired()) {
-//					System.out.println("\t" + i + ". " + lease);
-//					i++;
-//				}
-//			}
-//		}
-//	}
-//
-//	/**
-//	 * Displays all vacant units by retrieving the list of properties from the
-//	 * controller that are currently vacant and printing them to the console.
-//	 */
-//	public void displayVacantUnits() {
-//		ArrayList<Property> properties = controller.getVacantUnits();
-//		if (properties.isEmpty()) {
-//			System.out.println("No vacant unit records to display.");
-//		} else {
-//			System.out.println("List of vacant properties: ");
-//			for (Property property : properties) {
-//				System.out.println("\t" + property);
-//			}
-//		}
-//		System.out.println();
-//	}
-//
-//	/**
-//	 * Displays all leases by retrieving the list of leases from the controller and
-//	 * printing them to the console.
-//	 */
-//	public void displayAllLeases() {
-//		ArrayList<Lease> leases = controller.getAllLeases();
-//		if (leases.isEmpty()) {
-//			System.out.println("No active lease records to display.");
-//		} else {
-//			System.out.println("List of leases:");
-//			for (Lease lease : leases) {
-//				System.out.println("\t" + lease);
-//			}
-//		}
-//	}
 //
 //	/**
 //	 * Sends notifications to all potential tenants of a property through the
