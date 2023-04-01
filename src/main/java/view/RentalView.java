@@ -718,6 +718,7 @@ public class RentalView extends Application {
 
 					if (result.isPresent() && result.get() == yesButton) {
 						alert.close();
+						rentUnit();
 
 					} else {
 						property.addInterestedTenants(tenant);
