@@ -653,6 +653,10 @@ public class RentalView extends Application {
 		stage.setScene(scene);
 	}
 
+	/**
+	 * Prompts the user to enter details to rent a unit to a tenant and add in interested tenants list if the unit is not available 
+	 * for the specified dates
+	 */
 	public void rentUnit() {
 
 		stage.setTitle("Unit Rental");
@@ -679,109 +683,145 @@ public class RentalView extends Application {
 		Button submitButton = new Button("Submit");
 		submitButton.setPrefWidth(150);
 		submitButton.setOnAction(e -> {
-			int tenantID = Integer.parseInt(tenantIDField.getText());
-			Tenant tenant = controller.getTenant(tenantID);
+			
+			if(tenantIDField.getText().isEmpty() || propertyChoiceBox.getValue() == null || 
+					startDatePicker.getValue() == null || endDatePicker.getValue() == null) {
+				
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error");
+				alert.setHeaderText("Please fill in all the required fields.");
 
-			Property property = propertyChoiceBox.getValue();
+				ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+				alert.getButtonTypes().setAll(okButton);
 
-			LocalDate startDate = startDatePicker.getValue();
-
-			LocalDate endDate = endDatePicker.getValue();
-
-			ArrayList<Property> vacantProperties = controller.getVacantUnits();
-
-			boolean isVacant = false;
-			for (Property vacantProperty : vacantProperties) {
-				if (vacantProperty.getPropertyId() == property.getPropertyId()) {
-					isVacant = true;
-					break;
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.isPresent() && result.get() == okButton) {
+					rentUnit();
 				}
 			}
+			
+			else {
+			
+				int tenantID = Integer.parseInt(tenantIDField.getText());
+				Tenant tenant = controller.getTenant(tenantID);
+				
+				if(tenant == null) {
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Error");
+					alert.setHeaderText("Invalid tenant ID.");
 
-			Lease coincidingLease = controller.getLeaseByPropertyAndDates(property, startDate, endDate);
-
-			if (isVacant || coincidingLease != null) {
-				// Check if there is an existing lease during the specified dates
-				if (coincidingLease != null) {
-					// Ask user if they want to change the lease data or exit
-					Alert alert = new Alert(AlertType.WARNING);
-					alert.setTitle("Existing lease");
-					alert.setHeaderText("There is an existing lease for this property during the specified dates. "
-							+ "Dates of coinciding lease: " + coincidingLease.getStartDate() + " to "
-							+ coincidingLease.getEndDate() + "\nDo you want to change the lease data?");
-					ButtonType yesButton = new ButtonType("Yes");
-					ButtonType noButton = new ButtonType("No");
-					alert.getButtonTypes().setAll(yesButton, noButton);
+					ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+					alert.getButtonTypes().setAll(okButton);
 
 					Optional<ButtonType> result = alert.showAndWait();
-
-					if (result.isPresent() && result.get() == yesButton) {
-						alert.close();
+					if (result.isPresent() && result.get() == okButton) {
 						rentUnit();
-
-					} else {
-						property.addInterestedTenants(tenant);
-						Alert infoAlert = new Alert(AlertType.INFORMATION);
-						infoAlert.setTitle("Unit Rented");
-						infoAlert.setHeaderText(null);
-						infoAlert.setContentText("The selected unit is currently rented out. "
-								+ "A notification will be sent once the unit is available.");
-						ButtonType okButton = new ButtonType("Ok");
-						infoAlert.getButtonTypes().setAll(okButton);
-						Optional<ButtonType> results = infoAlert.showAndWait();
-						if (results.isPresent() && results.get() == okButton) {
-							alert.close();
-							start(stage);
+					}
+				}
+	
+				else {
+					
+					Property property = propertyChoiceBox.getValue();
+	
+					LocalDate startDate = startDatePicker.getValue();
+		
+					LocalDate endDate = endDatePicker.getValue();
+		
+					ArrayList<Property> vacantProperties = controller.getVacantUnits();
+		
+					boolean isVacant = false;
+					for (Property vacantProperty : vacantProperties) {
+						if (vacantProperty.getPropertyId() == property.getPropertyId()) {
+							isVacant = true;
+							break;
 						}
 					}
-
-				} else {
-					startDate = startDatePicker.getValue();
-					endDate = endDatePicker.getValue();
-
-					if (startDate == null || endDate == null) {
-						Alert errorAlert = new Alert(AlertType.ERROR);
-						errorAlert.setTitle("Error");
-						errorAlert.setHeaderText(null);
-						errorAlert.setContentText("Please select valid dates.");
-						errorAlert.showAndWait();
-						return;
-					}
-
-					TextInputDialog rentAmountDialog = new TextInputDialog();
-					rentAmountDialog.setTitle("Rent Amount");
-					rentAmountDialog.setHeaderText(null);
-					rentAmountDialog.setContentText("Rent amount (CAD):");
-					Optional<String> rentAmountResult = rentAmountDialog.showAndWait();
-					if (rentAmountResult.isPresent()) {
-						double rentAmount;
-						try {
-							rentAmount = Double.parseDouble(rentAmountResult.get());
-						} catch (NumberFormatException e1) {
-							Alert errorAlert = new Alert(AlertType.ERROR);
-							errorAlert.setTitle("Error");
-							errorAlert.setHeaderText(null);
-							errorAlert.setContentText("Invalid input. Please enter a valid number.");
-							errorAlert.showAndWait();
-							return;
+		
+					Lease coincidingLease = controller.getLeaseByPropertyAndDates(property, startDate, endDate);
+		
+					if (isVacant || coincidingLease != null) {
+						// Check if there is an existing lease during the specified dates
+						if (coincidingLease != null) {
+							// Ask user if they want to change the lease data or exit
+							Alert alert = new Alert(AlertType.WARNING);
+							alert.setTitle("Existing lease");
+							alert.setHeaderText("There is an existing lease for this property during the specified dates. "
+									+ "Dates of coinciding lease: " + coincidingLease.getStartDate() + " to "
+									+ coincidingLease.getEndDate() + "\nDo you want to change the lease data?");
+							ButtonType yesButton = new ButtonType("Yes");
+							ButtonType noButton = new ButtonType("No");
+							alert.getButtonTypes().setAll(yesButton, noButton);
+		
+							Optional<ButtonType> result = alert.showAndWait();
+		
+							if (result.isPresent() && result.get() == yesButton) {
+								alert.close();
+								rentUnit();
+		
+							} else {
+								property.addInterestedTenants(tenant);
+								Alert infoAlert = new Alert(AlertType.INFORMATION);
+								infoAlert.setTitle("Unit Rented");
+								infoAlert.setHeaderText(null);
+								infoAlert.setContentText("The selected unit is currently rented out. "
+										+ "A notification will be sent once the unit is available.");
+								ButtonType okButton = new ButtonType("Ok");
+								infoAlert.getButtonTypes().setAll(okButton);
+								Optional<ButtonType> results = infoAlert.showAndWait();
+								if (results.isPresent() && results.get() == okButton) {
+									alert.close();
+									start(stage);
+								}
+							}
+		
+						} else {
+							startDate = startDatePicker.getValue();
+							endDate = endDatePicker.getValue();
+		
+							if (startDate == null || endDate == null) {
+								Alert errorAlert = new Alert(AlertType.ERROR);
+								errorAlert.setTitle("Error");
+								errorAlert.setHeaderText(null);
+								errorAlert.setContentText("Please select valid dates.");
+								errorAlert.showAndWait();
+								return;
+							}
+		
+							TextInputDialog rentAmountDialog = new TextInputDialog();
+							rentAmountDialog.setTitle("Rent Amount");
+							rentAmountDialog.setHeaderText(null);
+							rentAmountDialog.setContentText("Rent amount (CAD):");
+							Optional<String> rentAmountResult = rentAmountDialog.showAndWait();
+							if (rentAmountResult.isPresent()) {
+								double rentAmount;
+								try {
+									rentAmount = Double.parseDouble(rentAmountResult.get());
+								} catch (NumberFormatException e1) {
+									Alert errorAlert = new Alert(AlertType.ERROR);
+									errorAlert.setTitle("Error");
+									errorAlert.setHeaderText(null);
+									errorAlert.setContentText("Invalid input. Please enter a valid number.");
+									errorAlert.showAndWait();
+									return;
+								}
+		
+								Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
+								controller.addLease(lease);
+								Alert successAlert = new Alert(AlertType.INFORMATION);
+								successAlert.setTitle("Success");
+								successAlert.setHeaderText(null);
+								successAlert.setContentText("The tenant " + tenant.getFirstName() + " " + tenant.getLastName()
+								+ " has been successfully rented the unit at " + property.getFullAddress() + ".");
+								ButtonType okButton = new ButtonType("Ok");
+								successAlert.getButtonTypes().setAll(okButton);
+								Optional<ButtonType> results = successAlert.showAndWait();
+								if (results.isPresent() && results.get() == okButton) {
+									successAlert.close();
+									start(stage);
+								}
+							}
 						}
-
-						Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
-						controller.addLease(lease);
-						Alert successAlert = new Alert(AlertType.INFORMATION);
-						successAlert.setTitle("Success");
-						successAlert.setHeaderText(null);
-						successAlert.setContentText("The tenant " + tenant.getFirstName() + " " + tenant.getLastName()
-						+ " has been successfully rented the unit at " + property.getFullAddress() + ".");
-						ButtonType okButton = new ButtonType("Ok");
-						successAlert.getButtonTypes().setAll(okButton);
-						Optional<ButtonType> results = successAlert.showAndWait();
-						if (results.isPresent() && results.get() == okButton) {
-							successAlert.close();
-							start(stage);
-						}
 					}
-
 				}
 			}
 		});
@@ -1290,6 +1330,9 @@ public class RentalView extends Application {
 		}
 	}
 	
+	/**
+	 * Displays the rent summary for the tenants with paid rent and tenants with unpaid rent.
+	 */
 	public void displayRentSummary() {
 		
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = controller.displayRentPaymentSummary();
@@ -1345,6 +1388,10 @@ public class RentalView extends Application {
 		}
 	}
 	
+	/**
+	 * Displays the rent summary for paid tenants
+	 * @param paidTenants
+	 */
 	public void paidTenantsDisplay(ArrayList<String> paidTenants) {
 		
 		if (paidTenants == null) {
@@ -1381,6 +1428,7 @@ public class RentalView extends Application {
 		
 			VBox vbox = new VBox();
 			vbox.getChildren().addAll(bannerImageView, label, paidTenantsTable, hbox);
+		
 			vbox.setSpacing(20);
 			vbox.setPadding(new Insets(10));
 			vbox.setAlignment(Pos.CENTER);
@@ -1391,6 +1439,10 @@ public class RentalView extends Application {
 		}
 	}
 	
+	/**
+	 * Displays the rent summary for unpaid tenants
+	 * @param unpaidTenants
+	 */
 	public void unpaidTenantsDisplay(ArrayList<String> unpaidTenants) {
 		
 		if (unpaidTenants == null) {
@@ -1437,6 +1489,11 @@ public class RentalView extends Application {
 		}
 	}
 	
+	/**
+	 * Creates a table to display the rent summary for paid and unpaid rent 
+	 * @param data
+	 * @return
+	 */
 	private TableView<String[]> createTableForRentPaymentSummary(ArrayList<String> data) {
 		
 		TableView<String[]> tableView = new TableView<String[]>();
@@ -1454,7 +1511,7 @@ public class RentalView extends Application {
         ObservableList<String[]> values = FXCollections.observableArrayList();
         
         for(String value : data) {
-        	String splitValue[] = value.split(" : ");
+        	String splitValue[] = value.split(": ");
         	values.add(new String[] {splitValue[0], splitValue[1]});
         }
         
@@ -1462,11 +1519,13 @@ public class RentalView extends Application {
         
         tableView.setFixedCellSize(25);
         tableView.setMaxHeight(tableView.getFixedCellSize() * data.size() + 30);
-        //tableView.setPrefHeight((data.size() + 1) * tableView.getFixedCellSize());
     
         return tableView;
 	}
 	
+	/**
+	 * Notifies all the interested tenants for all the properties
+	 */
 	public void notification() {
 		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
 		
@@ -1514,6 +1573,11 @@ public class RentalView extends Application {
 		}
 	}
 	
+	/**
+	 * Creates a table to show the notification sent to interested tenants
+	 * @param propertyAndInterestedTenants
+	 * @return
+	 */
 	private TableView<String[]> createTableForNotification(HashMap<String, ArrayList<String>> propertyAndInterestedTenants) {
 		
 		TableView<String[]> tableView = new TableView<String[]>();
@@ -1541,7 +1605,7 @@ public class RentalView extends Application {
         
         tableView.setFixedCellSize(25);
         tableView.setMaxHeight(tableView.getFixedCellSize() * propertyAndInterestedTenants.size() + 30);
-    
+        
         return tableView;
 	}
 }
