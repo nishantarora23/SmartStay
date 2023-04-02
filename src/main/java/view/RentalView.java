@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import controller.RentalController;
 import model.Apartment;
@@ -17,7 +19,7 @@ import model.PropertyBuilder;
 import model.Tenant;
 
 import javafx.application.Application;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -47,8 +49,6 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-//import java.util.Scanner;
-
 /**
  * The RentalView class represents the view of the SmartStay (rental management
  * system). It handles user input and displays information related to
@@ -57,10 +57,12 @@ import javafx.stage.Stage;
  */
 public class RentalView extends Application {
 
+	private ExecutorService guiExecutor;
 	private RentalController controller;
 	private Stage stage;
 
 	public RentalView() {
+		guiExecutor = Executors.newFixedThreadPool(1);
 		this.controller = new RentalController();
 	}
 
@@ -73,47 +75,58 @@ public class RentalView extends Application {
 	 */
 	@Override
 	public void start(Stage stage) {
-		stage.setTitle("Welcome To SmartStay");
-		this.stage = stage;
-
-		bannerImageView.setFitWidth(400);
-		bannerImageView.setPreserveRatio(true);
-		Label label = new Label("What would you like to do?");
-		label.setFont(Font.font("System", FontWeight.BOLD, 14));
-		String[] buttonLabels = { "Add a property", "Add a tenant", "Rent a unit", "Display properties",
-				"Display tenants", "Display rented units", "Display vacant units", "Display all leases",
-				"Make Rent Payment", "Rent Payment Summary", "Notify potential tenants", "Exit" };
-
-		List<Button> buttons = new ArrayList<>();
-		for (String labels : buttonLabels) {
-			Button button = new Button(labels);
-			button.setPrefWidth(200);
-			buttons.add(button);
-		}
-
-		buttons.get(0).setOnAction(e -> addProperty());
-		buttons.get(1).setOnAction(e -> addTenant());
-		buttons.get(2).setOnAction(e -> rentUnit());
-		buttons.get(3).setOnAction(e -> displayProperties());
-		buttons.get(4).setOnAction(e -> displayTenants());
-		buttons.get(5).setOnAction(e -> displayRentedUnits());
-		buttons.get(6).setOnAction(e -> displayVacantUnits());
-		buttons.get(7).setOnAction(e -> displayAllLeases());
-		buttons.get(8).setOnAction(e -> payRent());
-		buttons.get(9).setOnAction(e -> displayRentSummary());
-		buttons.get(10).setOnAction(e -> notification());
-		buttons.get(11).setOnAction(e -> stage.close());
-
-		VBox vbox = new VBox(10, bannerImageView, label, buttons.get(0), buttons.get(1), buttons.get(2), buttons.get(3),
-				buttons.get(4), buttons.get(5), buttons.get(6), buttons.get(7), buttons.get(8), buttons.get(9),
-				buttons.get(10), buttons.get(11));
-		vbox.setPadding(new Insets(10));
-		vbox.setAlignment(Pos.CENTER);
-		vbox.setStyle("-fx-background-color: #FFFFFF;");
-
-		Scene scene = new Scene(vbox, 500, 700);
-		stage.setScene(scene);
-		stage.show();
+		guiExecutor.submit(() -> {
+            Platform.runLater(() -> {
+				stage.setTitle("Welcome To SmartStay");
+				this.stage = stage;
+		
+				bannerImageView.setFitWidth(400);
+				bannerImageView.setPreserveRatio(true);
+				Label label = new Label("What would you like to do?");
+				label.setFont(Font.font("System", FontWeight.BOLD, 14));
+				String[] buttonLabels = { "Add a property", "Add a tenant", "Rent a unit", "Display properties",
+						"Display tenants", "Display rented units", "Display vacant units", "Display all leases",
+						"Make Rent Payment", "Rent Payment Summary", "Notify potential tenants", "Exit" };
+		
+				List<Button> buttons = new ArrayList<>();
+				for (String labels : buttonLabels) {
+					Button button = new Button(labels);
+					button.setPrefWidth(200);
+					buttons.add(button);
+				}
+		
+				buttons.get(0).setOnAction(e -> addProperty());
+				buttons.get(1).setOnAction(e -> addTenant());
+				buttons.get(2).setOnAction(e -> rentUnit());
+				buttons.get(3).setOnAction(e -> displayProperties());
+				buttons.get(4).setOnAction(e -> displayTenants());
+				buttons.get(5).setOnAction(e -> displayRentedUnits());
+				buttons.get(6).setOnAction(e -> displayVacantUnits());
+				buttons.get(7).setOnAction(e -> displayAllLeases());
+				buttons.get(8).setOnAction(e -> payRent());
+				buttons.get(9).setOnAction(e -> displayRentSummary());
+				buttons.get(10).setOnAction(e -> notification());
+				buttons.get(11).setOnAction(e -> close());
+		
+				VBox vbox = new VBox(10, bannerImageView, label, buttons.get(0), buttons.get(1), buttons.get(2), buttons.get(3),
+						buttons.get(4), buttons.get(5), buttons.get(6), buttons.get(7), buttons.get(8), buttons.get(9),
+						buttons.get(10), buttons.get(11));
+				vbox.setPadding(new Insets(10));
+				vbox.setAlignment(Pos.CENTER);
+				vbox.setStyle("-fx-background-color: #FFFFFF;");
+		
+				Scene scene = new Scene(vbox, 500, 700);
+				stage.setScene(scene);
+				stage.show();
+            });
+		});
+	}
+	
+	private void close() {
+		guiExecutor.shutdown();
+		stage.close();
+		//Platform.exit();
+		
 	}
 
 	/**
