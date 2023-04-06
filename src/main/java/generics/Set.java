@@ -13,6 +13,10 @@ public class Set<E extends Identifiable> {
     public void push(E item) {
         if (!items.containsKey(item.getID())) {
             items.put(item.getID(), item);
+            System.out.println("Item added to set.");
+        }
+        else {
+        	System.out.println("ID already exists");
         }
     }
 
@@ -49,10 +53,9 @@ public class Set<E extends Identifiable> {
     }
 
     public void display() {
-        System.out.print("(");
         for (E item : items.values()) {
-            System.out.print(item + ", ");
+        	
+            System.out.print("( ID: "+item.getID()+" Value "+((GenericClass<?>)item).getData()+" )"+"\n");
         }
-        System.out.println(")");
     }
 }

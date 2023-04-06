@@ -1,7 +1,9 @@
 package generics;
 
-public interface Identifiable {
+public abstract class Identifiable {
 
-    public int getID();
+	int id;
+
+    public abstract int getID();
 }
 
