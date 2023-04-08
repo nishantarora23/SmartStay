@@ -58,13 +58,11 @@ import javafx.stage.Stage;
 public class RentalView extends Application {
 
 	private ExecutorService guiExecutor;
-	private ExecutorService displayExecutor;
 	private RentalController controller;
 	private Stage stage;
 
 	public RentalView() {
 		guiExecutor = Executors.newFixedThreadPool(2);
-		displayExecutor = Executors.newSingleThreadExecutor();
 		this.controller = new RentalController();
 	}
 
@@ -79,7 +77,6 @@ public class RentalView extends Application {
 	public void start(Stage stage) {
 		guiExecutor.submit(() -> {
             Platform.runLater(() -> {
-            	System.out.println("GUI thread is running...");
 				stage.setTitle("Welcome To SmartStay");
 				this.stage = stage;				
 				startMenu();
@@ -110,14 +107,7 @@ public class RentalView extends Application {
 		buttons.get(0).setOnAction(e -> addProperty());
 		buttons.get(1).setOnAction(e -> addTenant());
 		buttons.get(2).setOnAction(e -> rentUnit());
-		buttons.get(3).setOnAction(e -> {
-			displayExecutor.submit(() -> {
-	            Platform.runLater(() -> {
-	            	System.out.println("Display properties thread is running...");
-					displayProperties();
-	            });
-			});
-		});
+		buttons.get(3).setOnAction(e -> displayProperties());
 		buttons.get(4).setOnAction(e -> displayTenants());
 		buttons.get(5).setOnAction(e -> displayRentedUnits());
 		buttons.get(6).setOnAction(e -> displayVacantUnits());
@@ -126,7 +116,6 @@ public class RentalView extends Application {
 		buttons.get(9).setOnAction(e -> displayRentSummary());
 		buttons.get(10).setOnAction(e -> notification());
 		buttons.get(11).setOnAction(e -> {
-			displayExecutor.shutdown();
 			guiExecutor.shutdown();
 			stage.close();
 		});
@@ -998,79 +987,83 @@ public class RentalView extends Application {
 	 * controller and printing them to the console.
 	 */
 	public void displayProperties() {
-		ArrayList<Property> properties = controller.getAllProperties();
+		guiExecutor.submit(() -> {
+			ArrayList<Property> properties = controller.getAllProperties();
+			
+			Platform.runLater(() -> {
+				if (properties.isEmpty()) {
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("Information");
+					alert.setHeaderText("No Property records to display.");
 
-		if (properties.isEmpty()) {
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Information");
-			alert.setHeaderText("No Property records to display.");
+					ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+					alert.getButtonTypes().setAll(okButton);
 
-			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
-			alert.getButtonTypes().setAll(okButton);
+					Optional<ButtonType> result = alert.showAndWait();
+					if (result.isPresent() && result.get() == okButton) {
+						startMenu();
+					}
 
-			Optional<ButtonType> result = alert.showAndWait();
-			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
-			}
+				} else {
+					stage.setTitle("Display Properties");
+					bannerImageView.setFitWidth(400);
+					bannerImageView.setPreserveRatio(true);
 
-		} else {
-			stage.setTitle("Display Properties");
-			bannerImageView.setFitWidth(400);
-			bannerImageView.setPreserveRatio(true);
+					Label label = new Label("\nPROPERTIES");
+					label.setFont(Font.font("System", FontWeight.BOLD, 14));
+			
+					TableView<String[]> tableView = new TableView<String[]>();
 
-			Label label = new Label("\nPROPERTIES");
-			label.setFont(Font.font("System", FontWeight.BOLD, 14));
-	
-			TableView<String[]> tableView = new TableView<String[]>();
+					TableColumn<String[], String> propertyNumberColumn = new TableColumn<>("S. No.");
+					TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
 
-			TableColumn<String[], String> propertyNumberColumn = new TableColumn<>("S. No.");
-			TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
+					propertyNumberColumn.setCellValueFactory(pNumber -> new SimpleStringProperty(pNumber.getValue()[0]));
+					propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
 
-			propertyNumberColumn.setCellValueFactory(pNumber -> new SimpleStringProperty(pNumber.getValue()[0]));
-			propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+					tableView.getColumns().add(propertyNumberColumn);
+					tableView.getColumns().add(propertyAddressColumn);
 
-			tableView.getColumns().add(propertyNumberColumn);
-			tableView.getColumns().add(propertyAddressColumn);
+					ObservableList<String[]> values = FXCollections.observableArrayList();
+					int i = 1;
+					for (Property property : properties) {
+					    String propertyAddress = property.getFullAddress();
+					    String[] row = {String.valueOf(i), propertyAddress};
+					    values.add(row);
+					    i++;
+					}
 
-			ObservableList<String[]> values = FXCollections.observableArrayList();
-			int i = 1;
-			for (Property property : properties) {
-			    String propertyAddress = property.getFullAddress();
-			    String[] row = {String.valueOf(i), propertyAddress};
-			    values.add(row);
-			    i++;
-			}
+					tableView.setItems(values);
 
-			tableView.setItems(values);
+					tableView.setFixedCellSize(25);
+					int numRowsToDisplay = Math.min(properties.size()+1, values.size()+1);
+					tableView.setMaxHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+					tableView.setPrefHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+					tableView.setPrefWidth(450);
 
-			tableView.setFixedCellSize(25);
-			int numRowsToDisplay = Math.min(properties.size()+1, values.size()+1);
-			tableView.setMaxHeight(tableView.getFixedCellSize() * numRowsToDisplay);
-			tableView.setPrefHeight(tableView.getFixedCellSize() * numRowsToDisplay);
-			tableView.setPrefWidth(450);
+					Button button = new Button("Back to Main Menu");
+					button.setOnAction(e -> startMenu());
+					button.setPrefWidth(150);
+					HBox hbox = new HBox(6, tableView);
+					hbox.setAlignment(Pos.CENTER);
+					hbox.setPadding(new Insets(10));
+					GridPane gridPane = new GridPane();
+					gridPane.setHgap(10);
+					gridPane.setVgap(10);
 
-			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
-			button.setPrefWidth(150);
-			HBox hbox = new HBox(6, tableView);
-			hbox.setAlignment(Pos.CENTER);
-			hbox.setPadding(new Insets(10));
-			GridPane gridPane = new GridPane();
-			gridPane.setHgap(10);
-			gridPane.setVgap(10);
+					gridPane.add(hbox, 0, 3, 2, 1);
+					gridPane.setAlignment(Pos.CENTER);
+					VBox vbox = new VBox();
+					vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
 
-			gridPane.add(hbox, 0, 3, 2, 1);
-			gridPane.setAlignment(Pos.CENTER);
-			VBox vbox = new VBox();
-			vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
+					vbox.setPadding(new Insets(10));
+					vbox.setAlignment(Pos.CENTER);
+					vbox.setStyle("-fx-background-color: #FFFFFF;");
 
-			vbox.setPadding(new Insets(10));
-			vbox.setAlignment(Pos.CENTER);
-			vbox.setStyle("-fx-background-color: #FFFFFF;");
-
-			Scene scene = new Scene(vbox, 500, 700);
-			stage.setScene(scene);
-		}
+					Scene scene = new Scene(vbox, 500, 700);
+					stage.setScene(scene);
+				}
+			});
+		});
 	
 	}
 
