@@ -125,7 +125,11 @@ public class RentalView extends Application {
 		buttons.get(8).setOnAction(e -> payRent());
 		buttons.get(9).setOnAction(e -> displayRentSummary());
 		buttons.get(10).setOnAction(e -> notification());
-		buttons.get(11).setOnAction(e -> close());
+		buttons.get(11).setOnAction(e -> {
+			displayExecutor.shutdown();
+			guiExecutor.shutdown();
+			stage.close();
+		});
 
 		VBox vbox = new VBox(10, bannerImageView, label, buttons.get(0), buttons.get(1), buttons.get(2), buttons.get(3),
 				buttons.get(4), buttons.get(5), buttons.get(6), buttons.get(7), buttons.get(8), buttons.get(9),
@@ -137,18 +141,6 @@ public class RentalView extends Application {
 		Scene scene = new Scene(vbox, 500, 700);
 		stage.setScene(scene);
 		stage.show();
-	}
-	
-	/**
-	 * This method shuts down the executor service of threads and the application
-	 */
-	private void close() {
-		displayExecutor.shutdown();
-		System.out.println("Display properties thread is closed");
-		guiExecutor.shutdown();
-		System.out.println("GUI thread is closed");
-		stage.close();
-		System.out.println("Application is closed");
 	}
 
 	/**
@@ -1389,7 +1381,7 @@ public class RentalView extends Application {
 			ArrayList<String> paidTenants = paidOrNotPaidAndTenants.get("PAID");
 			ArrayList<String> unpaidTenants = paidOrNotPaidAndTenants.get("UNPAID");
 		
-			stage.setTitle("Pay Rent");
+			stage.setTitle("Rent Payment Summary");
 			bannerImageView.setFitWidth(400);
 			bannerImageView.setPreserveRatio(true);
 			
@@ -1398,11 +1390,142 @@ public class RentalView extends Application {
 			
 			Button paidTenantsButton = new Button("Tenants with paid rent");
 			paidTenantsButton.setPrefWidth(150);
-			paidTenantsButton.setOnAction(e -> paidTenantsDisplay(paidTenants));
+			paidTenantsButton.setOnAction(e -> {
+				if (paidTenants == null) {
+					
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("Information");
+					alert.setHeaderText("No tenant records found for paid rent.");
+
+					ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+					alert.getButtonTypes().setAll(okButton);
+
+					Optional<ButtonType> result = alert.showAndWait();
+					if (result.isPresent() && result.get() == okButton) {
+						displayRentSummary();
+					}
+				}
+				else {
+					stage.setTitle("Paid Tenant Summary");
+					bannerImageView.setFitWidth(400);
+					bannerImageView.setPreserveRatio(true);
+					
+					Label label1 = new Label("SUMMARY FOR TENANTS WHO PAID RENT");
+					label1.setFont(Font.font("System", FontWeight.BOLD, 14));
+					
+					TableView<String[]> paidTenantsTable = new TableView<String[]>();
+					paidTenantsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+					
+					TableColumn<String[], String> tenantNameColumn = new TableColumn<>("Tenant Name");
+			        TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
+			        
+			        tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
+			        propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+			        
+			        paidTenantsTable.getColumns().add(tenantNameColumn);
+			        paidTenantsTable.getColumns().add(propertyColumn);
+			        
+			        ObservableList<String[]> values = FXCollections.observableArrayList();
+			        
+			        for(String value : paidTenants) {
+			        	String splitValue[] = value.split(": ");
+			        	values.add(new String[] {splitValue[0], splitValue[1]});
+			        }
+			        
+			        paidTenantsTable.setItems(values);
+			        
+			        paidTenantsTable.setFixedCellSize(25);
+			        paidTenantsTable.setMaxHeight(paidTenantsTable.getFixedCellSize() * paidTenants.size() + 30);
+					
+					Button backToRentSummaryButton = new Button("Back to Rent Summary");
+					backToRentSummaryButton.setOnAction(x -> displayRentSummary());
+					backToRentSummaryButton.setPrefWidth(150);
+					
+					HBox hbox = new HBox(10, backToRentSummaryButton);
+					hbox.setAlignment(Pos.CENTER);
+					hbox.setPadding(new Insets(10));
+				
+					VBox vbox = new VBox();
+					vbox.getChildren().addAll(bannerImageView, label1, paidTenantsTable, hbox);
+				
+					vbox.setSpacing(20);
+					vbox.setPadding(new Insets(10));
+					vbox.setAlignment(Pos.CENTER);
+					vbox.setStyle("-fx-background-color: #FFFFFF;");
+			
+					Scene scene = new Scene(vbox, 500, 700);
+					stage.setScene(scene);
+				}
+			});
 			
 			Button unpaidTenantsButton = new Button("Tenants with unpaid rent");
 			unpaidTenantsButton.setPrefWidth(150);
-			unpaidTenantsButton.setOnAction(e -> unpaidTenantsDisplay(unpaidTenants));
+			unpaidTenantsButton.setOnAction(e -> {
+				if (unpaidTenants == null) {
+					
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("Information");
+					alert.setHeaderText("No tenant records found for unpaid rent.");
+
+					ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+					alert.getButtonTypes().setAll(okButton);
+
+					Optional<ButtonType> result = alert.showAndWait();
+					if (result.isPresent() && result.get() == okButton) {
+						displayRentSummary();
+					}
+				}
+				else {
+					stage.setTitle("Unpaid Tenant Summary");
+					bannerImageView.setFitWidth(400);
+					bannerImageView.setPreserveRatio(true);
+					
+					Label label1 = new Label("SUMMARY FOR TENANTS WITH UNPAID RENT");
+					label1.setFont(Font.font("System", FontWeight.BOLD, 14));
+					
+					TableView<String[]> unpaidTenantsTable = new TableView<String[]>();
+					unpaidTenantsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+					
+					TableColumn<String[], String> tenantNameColumn = new TableColumn<>("Tenant Name");
+			        TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
+			        
+			        tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
+			        propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+			        
+			        unpaidTenantsTable.getColumns().add(tenantNameColumn);
+			        unpaidTenantsTable.getColumns().add(propertyColumn);
+			        
+			        ObservableList<String[]> values = FXCollections.observableArrayList();
+			        
+			        for(String value : unpaidTenants) {
+			        	String splitValue[] = value.split(": ");
+			        	values.add(new String[] {splitValue[0], splitValue[1]});
+			        }
+			        
+			        unpaidTenantsTable.setItems(values);
+			        
+			        unpaidTenantsTable.setFixedCellSize(25);
+			        unpaidTenantsTable.setMaxHeight(unpaidTenantsTable.getFixedCellSize() * unpaidTenants.size() + 30);
+					
+					Button backToRentSummaryButton = new Button("Back to Rent Summary");
+					backToRentSummaryButton.setOnAction(x -> displayRentSummary());
+					backToRentSummaryButton.setPrefWidth(150);
+					
+					HBox hbox = new HBox(10, backToRentSummaryButton);
+					hbox.setAlignment(Pos.CENTER);
+					hbox.setPadding(new Insets(10));
+				
+					VBox vbox = new VBox();
+					vbox.getChildren().addAll(bannerImageView, label1, unpaidTenantsTable, hbox);
+					vbox.setSpacing(20);
+					vbox.setPadding(new Insets(10));
+					vbox.setAlignment(Pos.CENTER);
+					vbox.setStyle("-fx-background-color: #FFFFFF;");
+			
+					Scene scene = new Scene(vbox, 500, 700);
+					stage.setScene(scene);
+				}
+			});
 			
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> startMenu());
@@ -1421,141 +1544,6 @@ public class RentalView extends Application {
 			Scene scene = new Scene(vbox, 500, 700);
 			stage.setScene(scene);
 		}
-	}
-	
-	/**
-	 * Displays the rent summary for paid tenants
-	 * @param paidTenants
-	 */
-	public void paidTenantsDisplay(ArrayList<String> paidTenants) {
-		
-		if (paidTenants == null) {
-			
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Information");
-			alert.setHeaderText("No tenant records found for paid rent.");
-
-			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
-			alert.getButtonTypes().setAll(okButton);
-
-			Optional<ButtonType> result = alert.showAndWait();
-			if (result.isPresent() && result.get() == okButton) {
-				displayRentSummary();
-			}
-		}
-		else {
-			stage.setTitle("Paid Tenant Summary");
-			bannerImageView.setFitWidth(400);
-			bannerImageView.setPreserveRatio(true);
-			
-			Label label = new Label("SUMMARY FOR TENANTS WHO PAID RENT");
-			label.setFont(Font.font("System", FontWeight.BOLD, 14));
-			
-			TableView<String[]> paidTenantsTable = createTableForRentPaymentSummary(paidTenants);
-			
-			Button backToRentSummaryButton = new Button("Back to Rent Summary");
-			backToRentSummaryButton.setOnAction(e -> displayRentSummary());
-			backToRentSummaryButton.setPrefWidth(150);
-			
-			HBox hbox = new HBox(10, backToRentSummaryButton);
-			hbox.setAlignment(Pos.CENTER);
-			hbox.setPadding(new Insets(10));
-		
-			VBox vbox = new VBox();
-			vbox.getChildren().addAll(bannerImageView, label, paidTenantsTable, hbox);
-		
-			vbox.setSpacing(20);
-			vbox.setPadding(new Insets(10));
-			vbox.setAlignment(Pos.CENTER);
-			vbox.setStyle("-fx-background-color: #FFFFFF;");
-	
-			Scene scene = new Scene(vbox, 500, 700);
-			stage.setScene(scene);
-		}
-	}
-	
-	/**
-	 * Displays the rent summary for unpaid tenants
-	 * @param unpaidTenants
-	 */
-	public void unpaidTenantsDisplay(ArrayList<String> unpaidTenants) {
-		
-		if (unpaidTenants == null) {
-			
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Information");
-			alert.setHeaderText("No tenant records found for unpaid rent.");
-
-			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
-			alert.getButtonTypes().setAll(okButton);
-
-			Optional<ButtonType> result = alert.showAndWait();
-			if (result.isPresent() && result.get() == okButton) {
-				displayRentSummary();
-			}
-		}
-		else {
-			stage.setTitle("Unpaid Tenant Summary");
-			bannerImageView.setFitWidth(400);
-			bannerImageView.setPreserveRatio(true);
-			
-			Label label = new Label("SUMMARY FOR TENANTS WITH UNPAID RENT");
-			label.setFont(Font.font("System", FontWeight.BOLD, 14));
-			
-			TableView<String[]> unpaidTenantsTable = createTableForRentPaymentSummary(unpaidTenants);
-			
-			Button backToRentSummaryButton = new Button("Back to Rent Summary");
-			backToRentSummaryButton.setOnAction(e -> displayRentSummary());
-			backToRentSummaryButton.setPrefWidth(150);
-			
-			HBox hbox = new HBox(10, backToRentSummaryButton);
-			hbox.setAlignment(Pos.CENTER);
-			hbox.setPadding(new Insets(10));
-		
-			VBox vbox = new VBox();
-			vbox.getChildren().addAll(bannerImageView, label, unpaidTenantsTable, hbox);
-			vbox.setSpacing(20);
-			vbox.setPadding(new Insets(10));
-			vbox.setAlignment(Pos.CENTER);
-			vbox.setStyle("-fx-background-color: #FFFFFF;");
-	
-			Scene scene = new Scene(vbox, 500, 700);
-			stage.setScene(scene);
-		}
-	}
-	
-	/**
-	 * Creates a table to display the rent summary for paid and unpaid rent 
-	 * @param data
-	 * @return
-	 */
-	private TableView<String[]> createTableForRentPaymentSummary(ArrayList<String> data) {
-		
-		TableView<String[]> tableView = new TableView<String[]>();
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		
-		TableColumn<String[], String> tenantNameColumn = new TableColumn<>("Tenant Name");
-        TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
-        
-        tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
-        propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
-        
-        tableView.getColumns().add(tenantNameColumn);
-        tableView.getColumns().add(propertyColumn);
-        
-        ObservableList<String[]> values = FXCollections.observableArrayList();
-        
-        for(String value : data) {
-        	String splitValue[] = value.split(": ");
-        	values.add(new String[] {splitValue[0], splitValue[1]});
-        }
-        
-        tableView.setItems(values);
-        
-        tableView.setFixedCellSize(25);
-        tableView.setMaxHeight(tableView.getFixedCellSize() * data.size() + 30);
-    
-        return tableView;
 	}
 	
 	/**
@@ -1585,7 +1573,31 @@ public class RentalView extends Application {
 			Label label = new Label("Notification sent to the interested tenants mentioned below");
 			label.setFont(Font.font("System", FontWeight.BOLD, 14));
 			
-			TableView<String[]> notificationTable = createTableForNotification(propertyAndInterestedTenants);
+			TableView<String[]> notificationTable = new TableView<String[]>();
+			notificationTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+			
+			TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
+	        TableColumn<String[], String> interestedTenantsNameColumn = new TableColumn<>("Interested Tenant Names");
+	        
+	        propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[0]));
+	        interestedTenantsNameColumn.setCellValueFactory(interestedTenant -> new SimpleStringProperty(interestedTenant.getValue()[1]));
+	        
+	        notificationTable.getColumns().add(propertyAddressColumn);
+	        notificationTable.getColumns().add(interestedTenantsNameColumn);
+	        
+	        ObservableList<String[]> values = FXCollections.observableArrayList();
+	        
+	        for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
+	            String propertyAddress = entry.getKey();
+	            ArrayList<String> interestedTenantNames = entry.getValue();
+	            String[] row = {propertyAddress, interestedTenantNames.toString()};
+	            values.add(row);
+	        }
+	        
+	        notificationTable.setItems(values);
+	        
+	        notificationTable.setFixedCellSize(25);
+	        notificationTable.setMaxHeight(notificationTable.getFixedCellSize() * (propertyAndInterestedTenants.size() + 1) + 30);
 			
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> startMenu());
@@ -1606,41 +1618,5 @@ public class RentalView extends Application {
 			stage.setScene(scene);
 			
 		}
-	}
-	
-	/**
-	 * Creates a table to show the notification sent to interested tenants
-	 * @param propertyAndInterestedTenants
-	 * @return
-	 */
-	private TableView<String[]> createTableForNotification(HashMap<String, ArrayList<String>> propertyAndInterestedTenants) {
-		
-		TableView<String[]> tableView = new TableView<String[]>();
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		
-		TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
-        TableColumn<String[], String> interestedTenantsNameColumn = new TableColumn<>("Interested Tenant Names");
-        
-        propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[0]));
-        interestedTenantsNameColumn.setCellValueFactory(interestedTenant -> new SimpleStringProperty(interestedTenant.getValue()[1]));
-        
-        tableView.getColumns().add(propertyAddressColumn);
-        tableView.getColumns().add(interestedTenantsNameColumn);
-        
-        ObservableList<String[]> values = FXCollections.observableArrayList();
-        
-        for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
-            String propertyAddress = entry.getKey();
-            ArrayList<String> interestedTenantNames = entry.getValue();
-            String[] row = {propertyAddress, interestedTenantNames.toString()};
-            values.add(row);
-        }
-        
-        tableView.setItems(values);
-        
-        tableView.setFixedCellSize(25);
-        tableView.setMaxHeight(tableView.getFixedCellSize() * (propertyAndInterestedTenants.size() + 1) + 30);
-        
-        return tableView;
 	}
 }
