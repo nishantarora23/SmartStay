@@ -1,5 +1,4 @@
 package generics;
-import java.util.Random;
 
 public class GenericClass<T> extends Identifiable{
 	private T data;

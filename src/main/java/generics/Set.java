@@ -55,7 +55,7 @@ public class Set<E extends Identifiable> {
     public void display() {
         for (E item : items.values()) {
         	
-            System.out.print("( ID: "+item.getID()+" Value "+((GenericClass<?>)item).getData()+" )"+"\n");
+            System.out.print("( ID: "+item.getID()+" ,Value: "+((GenericClass<?>)item).getData()+" )"+"\n");
         }
     }
 }

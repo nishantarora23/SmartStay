@@ -78,18 +78,18 @@ public class RentalView extends Application {
 	@Override
 	public void start(Stage stage) {
 		guiExecutor.submit(() -> {
-            Platform.runLater(() -> {
-            	System.out.println("GUI thread is running...");
+			System.out.println("GUI Thread initiated. Thread ID: " + Thread.currentThread().getId());
+			Platform.runLater(() -> {
 				stage.setTitle("Welcome To SmartStay");
-				this.stage = stage;				
+				this.stage = stage;
 				startMenu();
-            });
+			});
 		});
 	}
-	
+
 	/**
-	 * This method represents the main menu screen that is displayed first on launching the application 
-	 * and for subsequent displays of back to main menu
+	 * This method represents the main menu screen that is displayed first on
+	 * launching the application and for subsequent displays of back to main menu
 	 */
 	public void startMenu() {
 		bannerImageView.setFitWidth(400);
@@ -110,14 +110,7 @@ public class RentalView extends Application {
 		buttons.get(0).setOnAction(e -> addProperty());
 		buttons.get(1).setOnAction(e -> addTenant());
 		buttons.get(2).setOnAction(e -> rentUnit());
-		buttons.get(3).setOnAction(e -> {
-			displayExecutor.submit(() -> {
-	            Platform.runLater(() -> {
-	            	System.out.println("Display properties thread is running...");
-					displayProperties();
-	            });
-			});
-		});
+		buttons.get(3).setOnAction(e -> displayProperties());
 		buttons.get(4).setOnAction(e -> displayTenants());
 		buttons.get(5).setOnAction(e -> displayRentedUnits());
 		buttons.get(6).setOnAction(e -> displayVacantUnits());
@@ -126,7 +119,6 @@ public class RentalView extends Application {
 		buttons.get(9).setOnAction(e -> displayRentSummary());
 		buttons.get(10).setOnAction(e -> notification());
 		buttons.get(11).setOnAction(e -> {
-			displayExecutor.shutdown();
 			guiExecutor.shutdown();
 			stage.close();
 		});
@@ -681,8 +673,8 @@ public class RentalView extends Application {
 	}
 
 	/**
-	 * Prompts the user to enter details to rent a unit to a tenant and add in interested tenants list if the unit is not available 
-	 * for the specified dates
+	 * Prompts the user to enter details to rent a unit to a tenant and add in
+	 * interested tenants list if the unit is not available for the specified dates
 	 */
 	public void rentUnit() {
 
@@ -695,7 +687,6 @@ public class RentalView extends Application {
 
 		TextField tenantIDField = new TextField();
 		Label tenantIDLabel = new Label("Tenant ID: ");
-
 
 		ChoiceBox<Property> propertyChoiceBox = new ChoiceBox<>();
 		propertyChoiceBox.getItems().addAll(controller.getAllProperties());
@@ -710,10 +701,10 @@ public class RentalView extends Application {
 		Button submitButton = new Button("Submit");
 		submitButton.setPrefWidth(150);
 		submitButton.setOnAction(e -> {
-			
-			if(tenantIDField.getText().isEmpty() || propertyChoiceBox.getValue() == null || 
-					startDatePicker.getValue() == null || endDatePicker.getValue() == null) {
-				
+
+			if (tenantIDField.getText().isEmpty() || propertyChoiceBox.getValue() == null
+					|| startDatePicker.getValue() == null || endDatePicker.getValue() == null) {
+
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Error");
 				alert.setHeaderText("Please fill in all the required fields.");
@@ -726,13 +717,13 @@ public class RentalView extends Application {
 					rentUnit();
 				}
 			}
-			
+
 			else {
-			
+
 				int tenantID = Integer.parseInt(tenantIDField.getText());
 				Tenant tenant = controller.getTenant(tenantID);
-				
-				if(tenant == null) {
+
+				if (tenant == null) {
 					Alert alert = new Alert(AlertType.ERROR);
 					alert.setTitle("Error");
 					alert.setHeaderText("Invalid tenant ID.");
@@ -745,17 +736,17 @@ public class RentalView extends Application {
 						rentUnit();
 					}
 				}
-	
+
 				else {
-					
+
 					Property property = propertyChoiceBox.getValue();
-	
+
 					LocalDate startDate = startDatePicker.getValue();
-		
+
 					LocalDate endDate = endDatePicker.getValue();
-		
+
 					ArrayList<Property> vacantProperties = controller.getVacantUnits();
-		
+
 					boolean isVacant = false;
 					for (Property vacantProperty : vacantProperties) {
 						if (vacantProperty.getPropertyId() == property.getPropertyId()) {
@@ -763,28 +754,29 @@ public class RentalView extends Application {
 							break;
 						}
 					}
-		
+
 					Lease coincidingLease = controller.getLeaseByPropertyAndDates(property, startDate, endDate);
-		
+
 					if (isVacant || coincidingLease != null) {
 						// Check if there is an existing lease during the specified dates
 						if (coincidingLease != null) {
 							// Ask user if they want to change the lease data or exit
 							Alert alert = new Alert(AlertType.WARNING);
 							alert.setTitle("Existing lease");
-							alert.setHeaderText("There is an existing lease for this property during the specified dates. "
-									+ "Dates of coinciding lease: " + coincidingLease.getStartDate() + " to "
-									+ coincidingLease.getEndDate() + "\nDo you want to change the lease data?");
+							alert.setHeaderText(
+									"There is an existing lease for this property during the specified dates. "
+											+ "Dates of coinciding lease: " + coincidingLease.getStartDate() + " to "
+											+ coincidingLease.getEndDate() + "\nDo you want to change the lease data?");
 							ButtonType yesButton = new ButtonType("Yes");
 							ButtonType noButton = new ButtonType("No");
 							alert.getButtonTypes().setAll(yesButton, noButton);
-		
+
 							Optional<ButtonType> result = alert.showAndWait();
-		
+
 							if (result.isPresent() && result.get() == yesButton) {
 								alert.close();
 								rentUnit();
-		
+
 							} else {
 								property.addInterestedTenants(tenant);
 								Alert infoAlert = new Alert(AlertType.INFORMATION);
@@ -800,11 +792,11 @@ public class RentalView extends Application {
 									startMenu();
 								}
 							}
-		
+
 						} else {
 							startDate = startDatePicker.getValue();
 							endDate = endDatePicker.getValue();
-		
+
 							if (startDate == null || endDate == null) {
 								Alert errorAlert = new Alert(AlertType.ERROR);
 								errorAlert.setTitle("Error");
@@ -813,7 +805,7 @@ public class RentalView extends Application {
 								errorAlert.showAndWait();
 								return;
 							}
-		
+
 							TextInputDialog rentAmountDialog = new TextInputDialog();
 							rentAmountDialog.setTitle("Rent Amount");
 							rentAmountDialog.setHeaderText(null);
@@ -831,14 +823,15 @@ public class RentalView extends Application {
 									errorAlert.showAndWait();
 									return;
 								}
-		
+
 								Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
 								controller.addLease(lease);
 								Alert successAlert = new Alert(AlertType.INFORMATION);
 								successAlert.setTitle("Success");
 								successAlert.setHeaderText(null);
-								successAlert.setContentText("The tenant " + tenant.getFirstName() + " " + tenant.getLastName()
-								+ " has been successfully rented the unit at " + property.getFullAddress() + ".");
+								successAlert.setContentText("The tenant " + tenant.getFirstName() + " "
+										+ tenant.getLastName() + " has been successfully rented the unit at "
+										+ property.getFullAddress() + ".");
 								ButtonType okButton = new ButtonType("Ok");
 								successAlert.getButtonTypes().setAll(okButton);
 								Optional<ButtonType> results = successAlert.showAndWait();
@@ -992,86 +985,95 @@ public class RentalView extends Application {
 			stage.setScene(scene);
 		}
 	}
-	
+
 	/**
 	 * Displays all properties by retrieving the list of properties from the
 	 * controller and printing them to the console.
 	 */
 	public void displayProperties() {
-		ArrayList<Property> properties = controller.getAllProperties();
+		displayExecutor.submit(() -> {
+			System.out.println("\nDisplay All Properties Thread initiated. Thread ID: " + Thread.currentThread().getId());
+			Platform.runLater(() -> {
+				ArrayList<Property> properties = controller.getAllProperties();
 
-		if (properties.isEmpty()) {
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Information");
-			alert.setHeaderText("No Property records to display.");
+				if (properties.isEmpty()) {
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("Information");
+					alert.setHeaderText("No Property records to display.");
 
-			ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
-			alert.getButtonTypes().setAll(okButton);
+					ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+					alert.getButtonTypes().setAll(okButton);
 
-			Optional<ButtonType> result = alert.showAndWait();
-			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
-			}
+					Optional<ButtonType> result = alert.showAndWait();
+					if (result.isPresent() && result.get() == okButton) {
+						startMenu();
+					}
 
-		} else {
-			stage.setTitle("Display Properties");
-			bannerImageView.setFitWidth(400);
-			bannerImageView.setPreserveRatio(true);
+				} else {
+					stage.setTitle("Display Properties");
+					bannerImageView.setFitWidth(400);
+					bannerImageView.setPreserveRatio(true);
 
-			Label label = new Label("\nPROPERTIES");
-			label.setFont(Font.font("System", FontWeight.BOLD, 14));
-	
-			TableView<String[]> tableView = new TableView<String[]>();
+					Label label = new Label("\nPROPERTIES");
+					label.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-			TableColumn<String[], String> propertyNumberColumn = new TableColumn<>("S. No.");
-			TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
+					TableView<String[]> tableView = new TableView<String[]>();
 
-			propertyNumberColumn.setCellValueFactory(pNumber -> new SimpleStringProperty(pNumber.getValue()[0]));
-			propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+					TableColumn<String[], String> propertyNumberColumn = new TableColumn<>("S. No.");
+					TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
 
-			tableView.getColumns().add(propertyNumberColumn);
-			tableView.getColumns().add(propertyAddressColumn);
+					propertyNumberColumn
+							.setCellValueFactory(pNumber -> new SimpleStringProperty(pNumber.getValue()[0]));
+					propertyAddressColumn
+							.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
 
-			ObservableList<String[]> values = FXCollections.observableArrayList();
-			int i = 1;
-			for (Property property : properties) {
-			    String propertyAddress = property.getFullAddress();
-			    String[] row = {String.valueOf(i), propertyAddress};
-			    values.add(row);
-			    i++;
-			}
+					tableView.getColumns().add(propertyNumberColumn);
+					tableView.getColumns().add(propertyAddressColumn);
 
-			tableView.setItems(values);
+					ObservableList<String[]> values = FXCollections.observableArrayList();
+					int i = 1;
+					for (Property property : properties) {
+						String propertyAddress = property.getFullAddress();
+						String[] row = { String.valueOf(i), propertyAddress };
+						values.add(row);
+						i++;
+					}
 
-			tableView.setFixedCellSize(25);
-			int numRowsToDisplay = Math.min(properties.size()+1, values.size()+1);
-			tableView.setMaxHeight(tableView.getFixedCellSize() * numRowsToDisplay);
-			tableView.setPrefHeight(tableView.getFixedCellSize() * numRowsToDisplay);
-			tableView.setPrefWidth(450);
+					tableView.setItems(values);
 
-			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
-			button.setPrefWidth(150);
-			HBox hbox = new HBox(6, tableView);
-			hbox.setAlignment(Pos.CENTER);
-			hbox.setPadding(new Insets(10));
-			GridPane gridPane = new GridPane();
-			gridPane.setHgap(10);
-			gridPane.setVgap(10);
+					tableView.setFixedCellSize(25);
+					int numRowsToDisplay = Math.min(properties.size() + 1, values.size() + 1);
+					tableView.setMaxHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+					tableView.setPrefHeight(tableView.getFixedCellSize() * numRowsToDisplay);
+					tableView.setPrefWidth(450);
 
-			gridPane.add(hbox, 0, 3, 2, 1);
-			gridPane.setAlignment(Pos.CENTER);
-			VBox vbox = new VBox();
-			vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
+					Button button = new Button("Back to Main Menu");
+					button.setOnAction(e -> {
+						displayExecutor.shutdown();
+						startMenu();
+					});
+					button.setPrefWidth(150);
+					HBox hbox = new HBox(6, tableView);
+					hbox.setAlignment(Pos.CENTER);
+					hbox.setPadding(new Insets(10));
+					GridPane gridPane = new GridPane();
+					gridPane.setHgap(10);
+					gridPane.setVgap(10);
 
-			vbox.setPadding(new Insets(10));
-			vbox.setAlignment(Pos.CENTER);
-			vbox.setStyle("-fx-background-color: #FFFFFF;");
+					gridPane.add(hbox, 0, 3, 2, 1);
+					gridPane.setAlignment(Pos.CENTER);
+					VBox vbox = new VBox();
+					vbox.getChildren().addAll(bannerImageView, label, gridPane, button);
 
-			Scene scene = new Scene(vbox, 500, 700);
-			stage.setScene(scene);
-		}
-	
+					vbox.setPadding(new Insets(10));
+					vbox.setAlignment(Pos.CENTER);
+					vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+					Scene scene = new Scene(vbox, 500, 700);
+					stage.setScene(scene);
+				}
+			});
+		});
 	}
 
 	/**
@@ -1106,9 +1108,9 @@ public class RentalView extends Application {
 			tenantsBox.setStyle("-fx-background-color: #f2f2f2;");
 
 			for (Tenant tenant : tenants) {
-					Label tenantLabel = new Label(tenant.toString());
-					tenantLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
-					tenantsBox.getChildren().add(tenantLabel);
+				Label tenantLabel = new Label(tenant.toString());
+				tenantLabel.setFont(Font.font("System", FontWeight.NORMAL, 14));
+				tenantsBox.getChildren().add(tenantLabel);
 			}
 
 			ScrollPane scrollPane = new ScrollPane();
@@ -1138,7 +1140,7 @@ public class RentalView extends Application {
 			Scene scene = new Scene(vbox, 500, 700);
 			stage.setScene(scene);
 		}
-	
+
 	}
 
 	/**
@@ -1209,7 +1211,6 @@ public class RentalView extends Application {
 		}
 	}
 
-
 	/**
 	 * Displays all vacant units by retrieving the list of properties from the
 	 * controller that are currently vacant and printing them to the console.
@@ -1251,16 +1252,16 @@ public class RentalView extends Application {
 			ObservableList<String[]> values = FXCollections.observableArrayList();
 			int i = 1;
 			for (Property property : properties) {
-			    String propertyAddress = property.getFullAddress();
-			    String[] row = {String.valueOf(i), propertyAddress};
-			    values.add(row);
-			    i++;
+				String propertyAddress = property.getFullAddress();
+				String[] row = { String.valueOf(i), propertyAddress };
+				values.add(row);
+				i++;
 			}
 
 			tableView.setItems(values);
 
 			tableView.setFixedCellSize(25);
-			int numRowsToDisplay = Math.min(properties.size()+1, values.size()+1);
+			int numRowsToDisplay = Math.min(properties.size() + 1, values.size() + 1);
 			tableView.setMaxHeight(tableView.getFixedCellSize() * numRowsToDisplay);
 			tableView.setPrefHeight(tableView.getFixedCellSize() * numRowsToDisplay);
 			tableView.setPrefWidth(450);
@@ -1356,15 +1357,16 @@ public class RentalView extends Application {
 			stage.setScene(scene);
 		}
 	}
-	
+
 	/**
-	 * Displays the rent summary for the tenants with paid rent and tenants with unpaid rent.
+	 * Displays the rent summary for the tenants with paid rent and tenants with
+	 * unpaid rent.
 	 */
 	public void displayRentSummary() {
-		
+
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = controller.displayRentPaymentSummary();
 		if (paidOrNotPaidAndTenants.isEmpty()) {
-			
+
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Information");
 			alert.setHeaderText("No tenant records found associated with a lease.");
@@ -1376,23 +1378,22 @@ public class RentalView extends Application {
 			if (result.isPresent() && result.get() == okButton) {
 				startMenu();
 			}
-		}
-		else {
+		} else {
 			ArrayList<String> paidTenants = paidOrNotPaidAndTenants.get("PAID");
 			ArrayList<String> unpaidTenants = paidOrNotPaidAndTenants.get("UNPAID");
-		
+
 			stage.setTitle("Rent Payment Summary");
 			bannerImageView.setFitWidth(400);
 			bannerImageView.setPreserveRatio(true);
-			
+
 			Label label = new Label("\nChoose from the options below:");
 			label.setFont(Font.font("System", FontWeight.BOLD, 14));
-			
+
 			Button paidTenantsButton = new Button("Tenants with paid rent");
 			paidTenantsButton.setPrefWidth(150);
 			paidTenantsButton.setOnAction(e -> {
 				if (paidTenants == null) {
-					
+
 					Alert alert = new Alert(AlertType.INFORMATION);
 					alert.setTitle("Information");
 					alert.setHeaderText("No tenant records found for paid rent.");
@@ -1404,65 +1405,64 @@ public class RentalView extends Application {
 					if (result.isPresent() && result.get() == okButton) {
 						displayRentSummary();
 					}
-				}
-				else {
+				} else {
 					stage.setTitle("Paid Tenant Summary");
 					bannerImageView.setFitWidth(400);
 					bannerImageView.setPreserveRatio(true);
-					
+
 					Label label1 = new Label("SUMMARY FOR TENANTS WHO PAID RENT");
 					label1.setFont(Font.font("System", FontWeight.BOLD, 14));
-					
+
 					TableView<String[]> paidTenantsTable = new TableView<String[]>();
 					paidTenantsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-					
+
 					TableColumn<String[], String> tenantNameColumn = new TableColumn<>("Tenant Name");
-			        TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
-			        
-			        tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
-			        propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
-			        
-			        paidTenantsTable.getColumns().add(tenantNameColumn);
-			        paidTenantsTable.getColumns().add(propertyColumn);
-			        
-			        ObservableList<String[]> values = FXCollections.observableArrayList();
-			        
-			        for(String value : paidTenants) {
-			        	String splitValue[] = value.split(": ");
-			        	values.add(new String[] {splitValue[0], splitValue[1]});
-			        }
-			        
-			        paidTenantsTable.setItems(values);
-			        
-			        paidTenantsTable.setFixedCellSize(25);
-			        paidTenantsTable.setMaxHeight(paidTenantsTable.getFixedCellSize() * paidTenants.size() + 30);
-					
+					TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
+
+					tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
+					propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+
+					paidTenantsTable.getColumns().add(tenantNameColumn);
+					paidTenantsTable.getColumns().add(propertyColumn);
+
+					ObservableList<String[]> values = FXCollections.observableArrayList();
+
+					for (String value : paidTenants) {
+						String splitValue[] = value.split(": ");
+						values.add(new String[] { splitValue[0], splitValue[1] });
+					}
+
+					paidTenantsTable.setItems(values);
+
+					paidTenantsTable.setFixedCellSize(25);
+					paidTenantsTable.setMaxHeight(paidTenantsTable.getFixedCellSize() * paidTenants.size() + 30);
+
 					Button backToRentSummaryButton = new Button("Back to Rent Summary");
 					backToRentSummaryButton.setOnAction(x -> displayRentSummary());
 					backToRentSummaryButton.setPrefWidth(150);
-					
+
 					HBox hbox = new HBox(10, backToRentSummaryButton);
 					hbox.setAlignment(Pos.CENTER);
 					hbox.setPadding(new Insets(10));
-				
+
 					VBox vbox = new VBox();
 					vbox.getChildren().addAll(bannerImageView, label1, paidTenantsTable, hbox);
-				
+
 					vbox.setSpacing(20);
 					vbox.setPadding(new Insets(10));
 					vbox.setAlignment(Pos.CENTER);
 					vbox.setStyle("-fx-background-color: #FFFFFF;");
-			
+
 					Scene scene = new Scene(vbox, 500, 700);
 					stage.setScene(scene);
 				}
 			});
-			
+
 			Button unpaidTenantsButton = new Button("Tenants with unpaid rent");
 			unpaidTenantsButton.setPrefWidth(150);
 			unpaidTenantsButton.setOnAction(e -> {
 				if (unpaidTenants == null) {
-					
+
 					Alert alert = new Alert(AlertType.INFORMATION);
 					alert.setTitle("Information");
 					alert.setHeaderText("No tenant records found for unpaid rent.");
@@ -1474,59 +1474,58 @@ public class RentalView extends Application {
 					if (result.isPresent() && result.get() == okButton) {
 						displayRentSummary();
 					}
-				}
-				else {
+				} else {
 					stage.setTitle("Unpaid Tenant Summary");
 					bannerImageView.setFitWidth(400);
 					bannerImageView.setPreserveRatio(true);
-					
+
 					Label label1 = new Label("SUMMARY FOR TENANTS WITH UNPAID RENT");
 					label1.setFont(Font.font("System", FontWeight.BOLD, 14));
-					
+
 					TableView<String[]> unpaidTenantsTable = new TableView<String[]>();
 					unpaidTenantsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-					
+
 					TableColumn<String[], String> tenantNameColumn = new TableColumn<>("Tenant Name");
-			        TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
-			        
-			        tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
-			        propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
-			        
-			        unpaidTenantsTable.getColumns().add(tenantNameColumn);
-			        unpaidTenantsTable.getColumns().add(propertyColumn);
-			        
-			        ObservableList<String[]> values = FXCollections.observableArrayList();
-			        
-			        for(String value : unpaidTenants) {
-			        	String splitValue[] = value.split(": ");
-			        	values.add(new String[] {splitValue[0], splitValue[1]});
-			        }
-			        
-			        unpaidTenantsTable.setItems(values);
-			        
-			        unpaidTenantsTable.setFixedCellSize(25);
-			        unpaidTenantsTable.setMaxHeight(unpaidTenantsTable.getFixedCellSize() * unpaidTenants.size() + 30);
-					
+					TableColumn<String[], String> propertyColumn = new TableColumn<>("Property Address");
+
+					tenantNameColumn.setCellValueFactory(tName -> new SimpleStringProperty(tName.getValue()[0]));
+					propertyColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[1]));
+
+					unpaidTenantsTable.getColumns().add(tenantNameColumn);
+					unpaidTenantsTable.getColumns().add(propertyColumn);
+
+					ObservableList<String[]> values = FXCollections.observableArrayList();
+
+					for (String value : unpaidTenants) {
+						String splitValue[] = value.split(": ");
+						values.add(new String[] { splitValue[0], splitValue[1] });
+					}
+
+					unpaidTenantsTable.setItems(values);
+
+					unpaidTenantsTable.setFixedCellSize(25);
+					unpaidTenantsTable.setMaxHeight(unpaidTenantsTable.getFixedCellSize() * unpaidTenants.size() + 30);
+
 					Button backToRentSummaryButton = new Button("Back to Rent Summary");
 					backToRentSummaryButton.setOnAction(x -> displayRentSummary());
 					backToRentSummaryButton.setPrefWidth(150);
-					
+
 					HBox hbox = new HBox(10, backToRentSummaryButton);
 					hbox.setAlignment(Pos.CENTER);
 					hbox.setPadding(new Insets(10));
-				
+
 					VBox vbox = new VBox();
 					vbox.getChildren().addAll(bannerImageView, label1, unpaidTenantsTable, hbox);
 					vbox.setSpacing(20);
 					vbox.setPadding(new Insets(10));
 					vbox.setAlignment(Pos.CENTER);
 					vbox.setStyle("-fx-background-color: #FFFFFF;");
-			
+
 					Scene scene = new Scene(vbox, 500, 700);
 					stage.setScene(scene);
 				}
 			});
-			
+
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> startMenu());
 			button.setPrefWidth(150);
@@ -1536,22 +1535,22 @@ public class RentalView extends Application {
 
 			VBox vbox = new VBox();
 			vbox.getChildren().addAll(bannerImageView, label, hbox, button);
-	
+
 			vbox.setPadding(new Insets(10));
 			vbox.setAlignment(Pos.CENTER);
 			vbox.setStyle("-fx-background-color: #FFFFFF;");
-	
+
 			Scene scene = new Scene(vbox, 500, 700);
 			stage.setScene(scene);
 		}
 	}
-	
+
 	/**
 	 * Notifies all the interested tenants for all the properties
 	 */
 	public void notification() {
 		HashMap<String, ArrayList<String>> propertyAndInterestedTenants = controller.notifyInterestedTenants();
-		
+
 		if (propertyAndInterestedTenants.isEmpty()) {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Information");
@@ -1564,59 +1563,60 @@ public class RentalView extends Application {
 			if (result.isPresent() && result.get() == okButton) {
 				startMenu();
 			}
-		}
-		else {
+		} else {
 			stage.setTitle("Notify Interested Tenants");
 			bannerImageView.setFitWidth(400);
 			bannerImageView.setPreserveRatio(true);
-			
+
 			Label label = new Label("Notification sent to the interested tenants mentioned below");
 			label.setFont(Font.font("System", FontWeight.BOLD, 14));
-			
+
 			TableView<String[]> notificationTable = new TableView<String[]>();
 			notificationTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-			
+
 			TableColumn<String[], String> propertyAddressColumn = new TableColumn<>("Property Address");
-	        TableColumn<String[], String> interestedTenantsNameColumn = new TableColumn<>("Interested Tenant Names");
-	        
-	        propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[0]));
-	        interestedTenantsNameColumn.setCellValueFactory(interestedTenant -> new SimpleStringProperty(interestedTenant.getValue()[1]));
-	        
-	        notificationTable.getColumns().add(propertyAddressColumn);
-	        notificationTable.getColumns().add(interestedTenantsNameColumn);
-	        
-	        ObservableList<String[]> values = FXCollections.observableArrayList();
-	        
-	        for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
-	            String propertyAddress = entry.getKey();
-	            ArrayList<String> interestedTenantNames = entry.getValue();
-	            String[] row = {propertyAddress, interestedTenantNames.toString()};
-	            values.add(row);
-	        }
-	        
-	        notificationTable.setItems(values);
-	        
-	        notificationTable.setFixedCellSize(25);
-	        notificationTable.setMaxHeight(notificationTable.getFixedCellSize() * (propertyAndInterestedTenants.size() + 1) + 30);
-			
+			TableColumn<String[], String> interestedTenantsNameColumn = new TableColumn<>("Interested Tenant Names");
+
+			propertyAddressColumn.setCellValueFactory(pAddress -> new SimpleStringProperty(pAddress.getValue()[0]));
+			interestedTenantsNameColumn
+					.setCellValueFactory(interestedTenant -> new SimpleStringProperty(interestedTenant.getValue()[1]));
+
+			notificationTable.getColumns().add(propertyAddressColumn);
+			notificationTable.getColumns().add(interestedTenantsNameColumn);
+
+			ObservableList<String[]> values = FXCollections.observableArrayList();
+
+			for (Map.Entry<String, ArrayList<String>> entry : propertyAndInterestedTenants.entrySet()) {
+				String propertyAddress = entry.getKey();
+				ArrayList<String> interestedTenantNames = entry.getValue();
+				String[] row = { propertyAddress, interestedTenantNames.toString() };
+				values.add(row);
+			}
+
+			notificationTable.setItems(values);
+
+			notificationTable.setFixedCellSize(25);
+			notificationTable.setMaxHeight(
+					notificationTable.getFixedCellSize() * (propertyAndInterestedTenants.size() + 1) + 30);
+
 			Button button = new Button("Back to Main Menu");
 			button.setOnAction(e -> startMenu());
 			button.setPrefWidth(150);
-			
+
 			HBox hbox = new HBox(10, button);
 			hbox.setAlignment(Pos.CENTER);
 			hbox.setPadding(new Insets(10));
-		
+
 			VBox vbox = new VBox();
 			vbox.getChildren().addAll(bannerImageView, label, notificationTable, hbox);
 			vbox.setSpacing(20);
 			vbox.setPadding(new Insets(10));
 			vbox.setAlignment(Pos.CENTER);
 			vbox.setStyle("-fx-background-color: #FFFFFF;");
-	
+
 			Scene scene = new Scene(vbox, 500, 700);
 			stage.setScene(scene);
-			
+
 		}
 	}
 }
