@@ -63,9 +63,10 @@ public class RentalView extends Application {
 	private Stage stage;
 
 	public RentalView() {
-		guiExecutor = Executors.newFixedThreadPool(2);
+		guiExecutor = Executors.newFixedThreadPool(1);
 		displayExecutor = Executors.newSingleThreadExecutor();
 		this.controller = new RentalController();
+		System.out.println("Main Thread. Thread ID: " + Thread.currentThread().getId());
 	}
 
 	Image bannerImage = new Image("https://i.ibb.co/bbWLfbR/logo.jpg");
@@ -82,7 +83,49 @@ public class RentalView extends Application {
 			Platform.runLater(() -> {
 				stage.setTitle("Welcome To SmartStay");
 				this.stage = stage;
-				startMenu();
+
+				bannerImageView.setFitWidth(400);
+				bannerImageView.setPreserveRatio(true);
+				Label label = new Label("What would you like to do?");
+				label.setFont(Font.font("System", FontWeight.BOLD, 14));
+				String[] buttonLabels = { "Add a property", "Add a tenant", "Rent a unit", "Display properties",
+						"Display tenants", "Display rented units", "Display vacant units", "Display all leases",
+						"Make Rent Payment", "Rent Payment Summary", "Notify potential tenants", "Exit" };
+
+				List<Button> buttons = new ArrayList<>();
+				for (String labels : buttonLabels) {
+					Button button = new Button(labels);
+					button.setPrefWidth(200);
+					buttons.add(button);
+				}
+
+				buttons.get(0).setOnAction(e -> addProperty());
+				buttons.get(1).setOnAction(e -> addTenant());
+				buttons.get(2).setOnAction(e -> rentUnit());
+				buttons.get(3).setOnAction(e -> displayProperties());
+				buttons.get(4).setOnAction(e -> displayTenants());
+				buttons.get(5).setOnAction(e -> displayRentedUnits());
+				buttons.get(6).setOnAction(e -> displayVacantUnits());
+				buttons.get(7).setOnAction(e -> displayAllLeases());
+				buttons.get(8).setOnAction(e -> payRent());
+				buttons.get(9).setOnAction(e -> displayRentSummary());
+				buttons.get(10).setOnAction(e -> notification());
+				buttons.get(11).setOnAction(e -> {
+					displayExecutor.shutdown();
+					guiExecutor.shutdown();
+					stage.close();
+				});
+
+				VBox vbox = new VBox(10, bannerImageView, label, buttons.get(0), buttons.get(1), buttons.get(2), buttons.get(3),
+						buttons.get(4), buttons.get(5), buttons.get(6), buttons.get(7), buttons.get(8), buttons.get(9),
+						buttons.get(10), buttons.get(11));
+				vbox.setPadding(new Insets(10));
+				vbox.setAlignment(Pos.CENTER);
+				vbox.setStyle("-fx-background-color: #FFFFFF;");
+
+				Scene scene = new Scene(vbox, 500, 700);
+				stage.setScene(scene);
+				stage.show();
 			});
 		});
 	}
@@ -91,49 +134,6 @@ public class RentalView extends Application {
 	 * This method represents the main menu screen that is displayed first on
 	 * launching the application and for subsequent displays of back to main menu
 	 */
-	public void startMenu() {
-		bannerImageView.setFitWidth(400);
-		bannerImageView.setPreserveRatio(true);
-		Label label = new Label("What would you like to do?");
-		label.setFont(Font.font("System", FontWeight.BOLD, 14));
-		String[] buttonLabels = { "Add a property", "Add a tenant", "Rent a unit", "Display properties",
-				"Display tenants", "Display rented units", "Display vacant units", "Display all leases",
-				"Make Rent Payment", "Rent Payment Summary", "Notify potential tenants", "Exit" };
-
-		List<Button> buttons = new ArrayList<>();
-		for (String labels : buttonLabels) {
-			Button button = new Button(labels);
-			button.setPrefWidth(200);
-			buttons.add(button);
-		}
-
-		buttons.get(0).setOnAction(e -> addProperty());
-		buttons.get(1).setOnAction(e -> addTenant());
-		buttons.get(2).setOnAction(e -> rentUnit());
-		buttons.get(3).setOnAction(e -> displayProperties());
-		buttons.get(4).setOnAction(e -> displayTenants());
-		buttons.get(5).setOnAction(e -> displayRentedUnits());
-		buttons.get(6).setOnAction(e -> displayVacantUnits());
-		buttons.get(7).setOnAction(e -> displayAllLeases());
-		buttons.get(8).setOnAction(e -> payRent());
-		buttons.get(9).setOnAction(e -> displayRentSummary());
-		buttons.get(10).setOnAction(e -> notification());
-		buttons.get(11).setOnAction(e -> {
-			guiExecutor.shutdown();
-			stage.close();
-		});
-
-		VBox vbox = new VBox(10, bannerImageView, label, buttons.get(0), buttons.get(1), buttons.get(2), buttons.get(3),
-				buttons.get(4), buttons.get(5), buttons.get(6), buttons.get(7), buttons.get(8), buttons.get(9),
-				buttons.get(10), buttons.get(11));
-		vbox.setPadding(new Insets(10));
-		vbox.setAlignment(Pos.CENTER);
-		vbox.setStyle("-fx-background-color: #FFFFFF;");
-
-		Scene scene = new Scene(vbox, 500, 700);
-		stage.setScene(scene);
-		stage.show();
-	}
 
 	/**
 	 * Prompts the user to select a property type and adds the property
@@ -158,7 +158,7 @@ public class RentalView extends Application {
 		button1.setOnAction(e -> addApartment());
 		button2.setOnAction(e -> addCondo());
 		button3.setOnAction(e -> addHouse());
-		button4.setOnAction(e -> startMenu());
+		button4.setOnAction(e -> start(stage));
 
 		HBox hbox = new HBox(10, button1, button2, button3);
 		hbox.setAlignment(Pos.CENTER);
@@ -634,7 +634,7 @@ public class RentalView extends Application {
 
 				Optional<ButtonType> result = alert.showAndWait();
 				if (result.isPresent() && result.get() == okButton) {
-					startMenu();
+					start(stage);
 				}
 
 			} catch (IllegalArgumentException ex) {
@@ -647,7 +647,7 @@ public class RentalView extends Application {
 			}
 		});
 		Button button = new Button("Back to Main Menu");
-		button.setOnAction(e -> startMenu());
+		button.setOnAction(e -> start(stage));
 		button.setPrefWidth(150);
 		HBox hbox = new HBox(10, submitButton, button);
 		hbox.setAlignment(Pos.CENTER);
@@ -789,7 +789,7 @@ public class RentalView extends Application {
 								Optional<ButtonType> results = infoAlert.showAndWait();
 								if (results.isPresent() && results.get() == okButton) {
 									alert.close();
-									startMenu();
+									start(stage);
 								}
 							}
 
@@ -837,7 +837,7 @@ public class RentalView extends Application {
 								Optional<ButtonType> results = successAlert.showAndWait();
 								if (results.isPresent() && results.get() == okButton) {
 									successAlert.close();
-									startMenu();
+									start(stage);
 								}
 							}
 						}
@@ -846,7 +846,7 @@ public class RentalView extends Application {
 			}
 		});
 		Button button = new Button("Back to Main Menu");
-		button.setOnAction(e -> startMenu());
+		button.setOnAction(e -> start(stage));
 		button.setPrefWidth(150);
 		HBox hbox = new HBox(10, submitButton, button);
 		hbox.setAlignment(Pos.CENTER);
@@ -890,7 +890,7 @@ public class RentalView extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
+				start(stage);
 			}
 		}
 
@@ -931,7 +931,7 @@ public class RentalView extends Application {
 
 						Optional<ButtonType> result = alert.showAndWait();
 						if (result.isPresent() && result.get() == okButton) {
-							startMenu();
+							start(stage);
 						}
 					} else {
 						Alert alert = new Alert(AlertType.ERROR);
@@ -943,7 +943,7 @@ public class RentalView extends Application {
 
 						Optional<ButtonType> result = alert.showAndWait();
 						if (result.isPresent() && result.get() == okButton) {
-							startMenu();
+							start(stage);
 						}
 					}
 
@@ -962,7 +962,7 @@ public class RentalView extends Application {
 				}
 			});
 			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
+			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
 			HBox hbox = new HBox(10, submitButton, button);
 			hbox.setAlignment(Pos.CENTER);
@@ -1006,7 +1006,7 @@ public class RentalView extends Application {
 
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.isPresent() && result.get() == okButton) {
-						startMenu();
+						start(stage);
 					}
 
 				} else {
@@ -1049,8 +1049,7 @@ public class RentalView extends Application {
 
 					Button button = new Button("Back to Main Menu");
 					button.setOnAction(e -> {
-						displayExecutor.shutdown();
-						startMenu();
+						start(stage);
 					});
 					button.setPrefWidth(150);
 					HBox hbox = new HBox(6, tableView);
@@ -1092,7 +1091,7 @@ public class RentalView extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
+				start(stage);
 			}
 		} else {
 			stage.setTitle("Display Tenants");
@@ -1119,7 +1118,7 @@ public class RentalView extends Application {
 			scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
 			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
+			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
 			HBox hbox = new HBox(10, scrollPane);
 			hbox.setAlignment(Pos.CENTER);
@@ -1159,7 +1158,7 @@ public class RentalView extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
+				start(stage);
 			}
 		} else {
 			stage.setTitle("Display Rented Units");
@@ -1188,7 +1187,7 @@ public class RentalView extends Application {
 			scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
 			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
+			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
 			HBox hbox = new HBox(10, scrollPane);
 			hbox.setAlignment(Pos.CENTER);
@@ -1227,7 +1226,7 @@ public class RentalView extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
+				start(stage);
 			}
 
 		} else {
@@ -1267,7 +1266,7 @@ public class RentalView extends Application {
 			tableView.setPrefWidth(450);
 
 			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
+			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
 			HBox hbox = new HBox(6, tableView);
 			hbox.setAlignment(Pos.CENTER);
@@ -1306,7 +1305,7 @@ public class RentalView extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
+				start(stage);
 			}
 		} else {
 			stage.setTitle("Display Leases");
@@ -1335,7 +1334,7 @@ public class RentalView extends Application {
 			scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
 			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
+			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
 			HBox hbox = new HBox(10, scrollPane);
 			hbox.setAlignment(Pos.CENTER);
@@ -1376,7 +1375,7 @@ public class RentalView extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
+				start(stage);
 			}
 		} else {
 			ArrayList<String> paidTenants = paidOrNotPaidAndTenants.get("PAID");
@@ -1527,7 +1526,7 @@ public class RentalView extends Application {
 			});
 
 			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
+			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
 			HBox hbox = new HBox(30, paidTenantsButton, unpaidTenantsButton);
 			hbox.setAlignment(Pos.CENTER);
@@ -1561,7 +1560,7 @@ public class RentalView extends Application {
 
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == okButton) {
-				startMenu();
+				start(stage);
 			}
 		} else {
 			stage.setTitle("Notify Interested Tenants");
@@ -1600,7 +1599,7 @@ public class RentalView extends Application {
 					notificationTable.getFixedCellSize() * (propertyAndInterestedTenants.size() + 1) + 30);
 
 			Button button = new Button("Back to Main Menu");
-			button.setOnAction(e -> startMenu());
+			button.setOnAction(e -> start(stage));
 			button.setPrefWidth(150);
 
 			HBox hbox = new HBox(10, button);
