@@ -37,6 +37,10 @@ public class Set<E extends Identifiable> {
 	public int getSize() {
 		return items.size();
 	}
+	
+	public HashMap<Integer, E> getItems() {
+		return items;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -50,8 +54,15 @@ public class Set<E extends Identifiable> {
 		if (getSize() != other.getSize()) {
 			return false;
 		}
+		
+		HashMap<Integer, E> otherItems = (HashMap<Integer, E>)other.getItems();
+		
 		for (E item : items.values()) {
-			if (!other.peek(item.getID())) {
+			if (other.peek(item.getID())) {
+				if(!(items.get(item.getID()).equals(otherItems.get(item.getID()))))
+				return false;
+			}
+			else {
 				return false;
 			}
 		}

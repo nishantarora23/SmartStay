@@ -107,14 +107,21 @@ public class SetMenu {
 		System.out.print("Enter the number of elements in the other set: ");
 		int numItems = input.nextInt();
 		input.nextLine();
+		
 		for (int i = 0; i < numItems; i++) {
-			System.out.print("Enter ID " + (i + 1) + ": ");
+			System.out.print("Enter the id: ");
 			int id = input.nextInt();
 			input.nextLine();
+
+			System.out.print("Enter the element: ");
+			String item = input.nextLine();
+
 			GenericClass<String> genericItem = new GenericClass<>();
+			genericItem.setData(item);
 			genericItem.id = id;
 			otherSet.push(genericItem);
 		}
+		
 		if (set.equals(otherSet)) {
 			System.out.println("The sets are equal.");
 		} else {
