@@ -2,14 +2,24 @@ package generics;
 
 import java.util.Scanner;
 
+/**
+ * The class SetMenu defines the menu for the Generic Driver class.
+ */
 public class SetMenu {
 
 	private Set<GenericClass<?>> set;
 
+	/**
+	 * A constructor that creates a generic set object
+	 * @param set
+	 */
 	public SetMenu(Set<GenericClass<?>> set) {
 		this.set = set;
 	}
 
+	/**
+	 * This method displays the main menu of the Generic Driver class
+	 */
 	public void run() {
 		Scanner input = new Scanner(System.in);
 		String choice;
@@ -55,6 +65,10 @@ public class SetMenu {
 		input.close();
 	}
 
+	/**
+	 * This method adds an item to the set by wrapping the item in Generic class
+	 * @param input
+	 */
 	private void addItem(Scanner input) {
 
 		System.out.print("Enter the id: ");
@@ -71,6 +85,10 @@ public class SetMenu {
 
 	}
 
+	/**
+	 * This method removes an item from the set
+	 * @param input
+	 */
 	private void removeItem(Scanner input) {
 		System.out.print("Enter the element ID: ");
 		int id = input.nextInt();
@@ -83,6 +101,10 @@ public class SetMenu {
 		}
 	}
 
+	/**
+	 * This method checks whether the item exists in set or not
+	 * @param input
+	 */
 	private void checkItem(Scanner input) {
 		System.out.print("Enter the element ID: ");
 		int id = input.nextInt();
@@ -94,14 +116,24 @@ public class SetMenu {
 		}
 	}
 
+	/**
+	 * This method returns the size of the set
+	 */
 	private void getSize() {
 		System.out.println("Size of set: " + set.getSize());
 	}
 
+	/**
+	 * This method displays the set elements
+	 */
 	private void displaySet() {
 		set.display();
 	}
 
+	/**
+	 * This method checks whether two sets are equal
+	 * @param input
+	 */
 	private void checkEqualSets(Scanner input) {
 		Set<GenericClass<?>> otherSet = new Set<>();
 		System.out.print("Enter the number of elements in the other set: ");
