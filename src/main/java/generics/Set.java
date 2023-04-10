@@ -14,12 +14,12 @@ public class Set<E extends Identifiable> {
 		if (!items.containsKey(item.getID())) {
 			for(E value : items.values()) {
 				if((((GenericClass)value).getData()).equals(((GenericClass)item).getData())){
-					System.out.println(((GenericClass)value).getData()+ " Item already exists");
+					System.out.println(((GenericClass)value).getData()+ " Element already exists");
 					return;	
 				}
 			}
 			items.put(item.getID(), item);
-			System.out.println("Item added to set.");
+			System.out.println("Element added to set.");
 		}
 		else {
 			System.out.println(item.getID() +" ID already exists");
